@@ -5,7 +5,7 @@ process.env.NODE_ENV = "test";
 const db = require("../db");
 const User = require("./user");
 const Concert = require("./concert");
-const { UnauthorizedError, BadRequestError } = require("../expressError");
+const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
 
 beforeEach(async function () {
     await db.query("DELETE FROM users");

@@ -1,7 +1,7 @@
 "use strict";
 
-import { convertZipCodeToCoords } from "../helpers/zipToCoords";
-import { BadRequestError } from "../helpers/expressError"; 
+const { convertZipCodeToCoords } = require("../helpers/zipToCoords");
+const { BadRequestError } = require("../helpers/expressError"); 
  
 
 describe("convertZipCodeToCoords", function () {

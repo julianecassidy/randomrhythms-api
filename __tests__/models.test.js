@@ -3,18 +3,25 @@
 process.env.NODE_ENV = "test";
 
 const db = require("../db");
-const User = require("./user");
+const bcrypt = require("bcrypt");
+
+const User = require("../models/user");
 const Concert = require("./concert");
 const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
 
-beforeEach(async function () {
+beforeAll(async function () {
     await db.query("DELETE FROM users");
+})
 
-    async function _hashedKey(key) {
-        return await bcrypt.hash(key, 1);
+beforeEach(async function () {
+
+    await db.query("BEGIN");
+
+    async function _hashedPwd(password) {
+        return await bcrypt.hash(password, 1);
     }
 
-    const testUser = ["First", "Last", "test@test.com", await _hashedKey(testKey)];
+    const testUser = ["Test", "test@test.com", await _hashedPwd(testPassword)];
 
     await db.query(
         `INSERT INTO users
@@ -23,32 +30,25 @@ beforeEach(async function () {
     );
 });
 
+afterEach(async function () {
+    await db.query("ROLLBACK");
+})
+
 
 /***************************************************************** USER CLASS */
-describe("test User class", function () {
+describe("register", function () {
+    const newUser = {
+        password: "password",
+        name: "New",
+        email: "new@test.com"
+    };
+
     test("can register", async function () {
-        const key = await User.register({
-            password: "password",
-            first_name: "TestF",
-            last_name: "TestL",
-            email: "test@test.com"
+        const user = await User.register({
+            ...newUser
         });
 
-        expect(key).toEqual(expect.any(String));
-    });
-
-    test("throw 401 for bad password", async function () {
-        try {
-            const key = await User.register({
-                password: "bad-password",
-                first_name: "TestF",
-                last_name: "TestL",
-                email: "test@test.com"
-            });
-            throw new Error("fail test, you shouldn't get here");
-        } catch (err) {
-            expect(err instanceof UnauthorizedError).toBeTruthy();
-        }
+        expect(user).toEqual({...newUser, id: expect.any(Number)});
     });
 
     test("throw 400 for bad data", async function () {
@@ -63,15 +63,16 @@ describe("test User class", function () {
         }
     });
 
-    test("throw 401 for bad password and bad data", async function () {
+    test("throw 400 for duplicate email", async function () {
         try {
             const key = await User.register({
-                password: "bad-password",
-                first_name: "TestF",
+                password: "password",
+                name: "TestF",
+                email: "test@test.com"
             });
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
-            expect(err instanceof UnauthorizedError).toBeTruthy();
+            expect(err instanceof BadRequestError).toBeTruthy();
         }
     });
 });

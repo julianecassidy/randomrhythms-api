@@ -36,11 +36,24 @@ afterEach(async function () {
 
 
 /***************************************************************** USER CLASS */
+describe("validateSignUpCode", function () {
+    const testCode = "welcome";
+
+    test("returns true for valid code", function () {
+        expect(validateSignUpCode("welcome", testCode)).toBe(true);
+    });
+
+    test("returns false for invalid code", function () {
+        expect(validateSignUpCode("wrong", testCode)).toBe(false);
+    });
+
+})
+
 describe("register", function () {
     const newUser = {
         password: "password",
         name: "New",
-        email: "new@test.com"
+        email: "new@test.com",
     };
 
     test("can register", async function () {
@@ -48,12 +61,16 @@ describe("register", function () {
             ...newUser
         });
 
-        expect(user).toEqual({...newUser, id: expect.any(Number)});
+        expect(user).toEqual({
+            name: "New", 
+            email: "new@test.com", 
+            id: expect.any(Number),
+        });
     });
 
     test("throw 400 for bad data", async function () {
         try {
-            const key = await User.register({
+            const user = await User.register({
                 password: "password",
                 first_name: "TestF",
             });
@@ -65,10 +82,10 @@ describe("register", function () {
 
     test("throw 400 for duplicate email", async function () {
         try {
-            const key = await User.register({
+            const user = await User.register({
                 password: "password",
                 name: "TestF",
-                email: "test@test.com"
+                email: "test@test.com",
             });
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
@@ -76,6 +93,35 @@ describe("register", function () {
         }
     });
 });
+
+describe("login", function () {
+    test("works with correct credentials", async function () {
+        const user = await User.authenticate("test@test.com", "password");
+        expect(user).toEqual({
+          name: "Test",
+          email: "test@test.com",
+          id: expect.any(Number),
+        });
+      });
+    
+      test("throws 401 if no such user", async function () {
+        try {
+          await User.authenticate("not-a-user", "password");
+          throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+          expect(err instanceof UnauthorizedError).toBeTruthy();
+        }
+      });
+    
+      test("throws 401 if wrong password", async function () {
+        try {
+          await User.authenticate("test@test.com", "wrong");
+          throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+          expect(err instanceof UnauthorizedError).toBeTruthy();
+        }
+      });
+})
 
 
 /************************************************************** CONCERT CLASS */

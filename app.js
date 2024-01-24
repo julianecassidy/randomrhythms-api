@@ -1,11 +1,12 @@
 const express = require("express");
 const app = express();
 
-const { NotFoundError } = require("./expressError");
+const { NotFoundError } = require("./helpers/expressError");
 
 app.use(express.json());                           // process JSON data
 app.use(express.urlencoded());                     // process trad form data
 
+const authRoutes = require('./routes/auth');
 const concertRoutes = require('./routes/concerts');
 
 app.use("/concerts", concertRoutes)

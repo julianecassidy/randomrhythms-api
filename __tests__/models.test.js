@@ -5,8 +5,14 @@ process.env.NODE_ENV = "test";
 const db = require("../db");
 const bcrypt = require("bcrypt");
 
+const AxiosMockAdapter = require("axios-mock-adapter");
+const axios = require("axios");
+const axiosMock = new AxiosMockAdapter(axios);
+
+const { JAMBASE_API_KEY } = require("../config");
 const User = require("../models/user");
-const Concert = require("./concert");
+const { Concert, JAMBASE_BASE_URL } = require("../models/concert");
+const { GET_CONCERT_API_RESP } = require("./concertData");
 const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
 
 beforeAll(async function () {
@@ -125,18 +131,128 @@ describe("login", function () {
 
 
 /************************************************************** CONCERT CLASS */
-describe("test getConcerts", function () {
+// MOCKED VERSION. RUN WITHOUT RESTRAINT.
+describe("getConcerts", function () {
+    
     test("returns a list of concerts data", async function () {
+        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
+            params: {
+                apikey: JAMBASE_API_KEY,
+                eventDateFrom: "2024-01-01",
+                eventDateTo: "2024-01-02",
+                geoLatitude: 39.644843,
+                geoLongitude: -104.968091,
+                geoRadiusAmount: 5,
+                geoRadiusUnits: mi
+            }
+        }).reply(200, {
+            "results": GET_CONCERT_API_RESP
+        });
+
+        const resp = await Concert.getConcerts(
+            "2024-01-01", 
+            "2024-01-02", 
+            39.644843, 
+            -104.968091,
+            5
+        );
+
+        expect(resp).toEqual([{
+            jambase_id: "jambase:11070750",
+            headliner: {
+                name: "Ben Rector",
+                band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
+                genres: ["folk", "indie", "pop", "rock" ]
+            },
+            openers: ["Cody Fry"],
+            venue: {
+                name: "Boettcher Concert Hall",
+                venue_image_url: "",
+                streetAddress: "1400 Curtis Street",
+                city: "Denver",
+                state: "CO",
+                zipCode: "80202"
+            },
+            cost: "",
+            date_time: "2024-02-01T19:30:00",
+            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
+            event_status: "scheduled"
+        }, {
+            jambase_id: "jambase:11297801",
+            headliner: {
+                name: "Silent Planet",
+                band_image,_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg", 
+                genres: ["metal", "punk"]
+            },
+            openers: ["Thornhill", "Aviana", "Johnny Booth"],
+            venue: {
+                name: "Summit Music Hall",
+                venue_image_url: "",
+                streetAddress: "1902 Blake St",
+                city: "Denver",
+                state: "CO",
+                zipCode: "80202"
+            },
+            cost: "22.00",
+            date_time: "2024-02-01T18:00:00",
+            ticket_url: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
+            event_status: "scheduled"
+        }]);
+        
 
     });
 
     test("returns an empty list if no matching concerts", async function () {
+        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
+            params: {
+                apikey: JAMBASE_API_KEY,
+                eventDateFrom: "2024-01-01",
+                eventDateTo: "2024-01-02",
+                geoLatitude: 39.644843,
+                geoLongitude: -104.968091,
+                geoRadiusAmount: 1,
+                geoRadiusUnits: mi
+            }
+        }).reply(200, {
+            "results": []
+        });
+
+        const resp = await Concert.getConcerts(
+            "2024-01-01", 
+            "2024-01-02", 
+            39.644843, 
+            -104.968091,
+            1
+        );
+
+        expect(resp).toEqual([]);
 
     });
 
-    test("throw 400 if dates are invalid", async function () {
+    test("throw 400 if API call fails", async function () {
+
+        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
+            params: {
+                apikey: JAMBASE_API_KEY,
+                eventDateFrom: "2024-01-01",
+                eventDateTo: "2024-01-02",
+                geoLatitude: 39.644843,
+                geoLongitude: -104.968091,
+                geoRadiusAmount: 10,
+                geoRadiusUnits: mi
+            }
+        }).reply(200, {
+            "results":  {"success": false}
+        });
+
         try {
-            await Concert.get("");
+            await Concert.getConcerts(
+                "2024-01-01", 
+                "2024-01-02", 
+                39.644843, 
+                -104.968091,
+                10
+            );
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof BadRequestError).toBeTruthy();
@@ -145,18 +261,18 @@ describe("test getConcerts", function () {
 });
 
 
-describe("test getPrices", function () {
-    test("returns price", async function () {
+// describe("test getPrices", function () {
+//     test("returns price", async function () {
 
-    });
+//     });
 
-    test("returns -1 if price not found", async function () {
+//     test("returns empty string if price not found", async function () {
 
-    });
-});
+//     });
+// });
 
 
-describe("test getConcertDetails", function () {
+describe("getConcertDetails", function () {
     test("returns a concert", async function () {
 
     });
@@ -169,10 +285,19 @@ describe("test getConcertDetails", function () {
             expect(err instanceof NotFoundError).toBeTruthy();
         }
     });
+
+    test("throw 400 if API request fails", async function () {
+        try {
+            await Concert.get("not-a-concert");
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof NotFoundError).toBeTruthy();
+        }
+    });
 });
 
 
-describe("test getRandomConcertDetails", function () {
+describe("getRandomConcertDetails", function () {
     test("returns a concert with all filters", async function () {
 
     });

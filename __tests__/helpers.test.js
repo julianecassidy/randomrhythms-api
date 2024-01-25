@@ -35,9 +35,9 @@ describe("convertZipCodeToCoords", function () {
 describe("convertZipCodeToCoords", function () {
     
     test("converts valid zip code to lat and long", function () {
-        axiosMock.onGet(`${BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
+        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
           .reply(200, {
-            "results":{
+            "results": {
                 "geometry": {
                     "location": {
                         "lat": 39.644843,
@@ -55,7 +55,7 @@ describe("convertZipCodeToCoords", function () {
     });
 
     test("throws 400 for invalid zip code", function () {
-        axiosMock.onGet(`${BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
+        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
           .reply(200, {
             "results":{
                 "status": "ZERO_RESULTS"
@@ -71,7 +71,7 @@ describe("convertZipCodeToCoords", function () {
     });
 
     test("throws 400 for other API errors", function () {
-        axiosMock.onGet(`${BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
+        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
           .reply(200, {
             "results":{
                 "status": "OVER_DAILY_LIMIT"

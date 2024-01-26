@@ -12,7 +12,7 @@ const axiosMock = new AxiosMockAdapter(axios);
 const { JAMBASE_API_KEY } = require("../config");
 const User = require("../models/user");
 const { Concert, JAMBASE_BASE_URL } = require("../models/concert");
-const { GET_CONCERT_API_RESP } = require("./concertData");
+const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./concertData");
 const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
 
 beforeAll(async function () {
@@ -131,7 +131,8 @@ describe("login", function () {
 
 
 /************************************************************** CONCERT CLASS */
-// MOCKED VERSION. RUN WITHOUT RESTRAINT.
+// MOCKED VERSIONS. RUN WITHOUT RESTRAINT.
+
 describe("getConcerts", function () {
     
     test("returns a list of concerts data", async function () {
@@ -198,8 +199,6 @@ describe("getConcerts", function () {
             ticket_url: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
             event_status: "scheduled"
         }]);
-        
-
     });
 
     test("returns an empty list if no matching concerts", async function () {
@@ -230,7 +229,6 @@ describe("getConcerts", function () {
     });
 
     test("throw 400 if API call fails", async function () {
-
         axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
             params: {
                 apikey: JAMBASE_API_KEY,
@@ -241,7 +239,7 @@ describe("getConcerts", function () {
                 geoRadiusAmount: 10,
                 geoRadiusUnits: mi
             }
-        }).reply(200, {
+        }).reply(400, {
             "results":  {"success": false}
         });
 
@@ -261,23 +259,57 @@ describe("getConcerts", function () {
 });
 
 
-// describe("test getPrices", function () {
-//     test("returns price", async function () {
-
-//     });
-
-//     test("returns empty string if price not found", async function () {
-
-//     });
-// });
-
-
 describe("getConcertDetails", function () {
     test("returns a concert", async function () {
+        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:123`, { 
+            params: {
+                apikey: JAMBASE_API_KEY,
+            }
+        }).reply(200, {
+            "results":  GET_CONCERTS_API_RESP
+        });
 
+        const resp = await Concert.getConcert("123");
+
+        expcet(resp).toEqual({
+            jambase_id: "jambase:11070750",
+            headliner: {
+                name: "Ben Rector",
+                band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
+                genres: ["folk", "indie", "pop", "rock" ]
+            },
+            openers: ["Cody Fry"],
+            venue: {
+                name: "Boettcher Concert Hall",
+                venue_image_url: "",
+                streetAddress: "1400 Curtis Street",
+                city: "Denver",
+                state: "CO",
+                zipCode: "80202"
+            },
+            cost: "",
+            date_time: "2024-02-01T19:30:00",
+            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
+            event_status: "scheduled"
+        });
     });
 
     test("throw 404 if no such concert", async function () {
+        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:not-a-concert`, { 
+            params: {
+                apikey: JAMBASE_API_KEY,
+            }
+        }).reply(400, {
+            "results": {
+                "success": false,
+                "errors": [
+                    {
+                    "code": "identifier_invalid",
+                    "message": "No event found for `jambase` event id `not-a-concert`"
+                    }
+                ]
+            }
+        });
         try {
             await Concert.get("not-a-concert");
             throw new Error("fail test, you shouldn't get here");
@@ -287,11 +319,26 @@ describe("getConcertDetails", function () {
     });
 
     test("throw 400 if API request fails", async function () {
+        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:not-a-concert`, { 
+            params: {
+                apikey: JAMBASE_API_KEY,
+            }
+        }).reply(400, {
+            "results": {
+                "success": false,
+                "errors": [
+                    {
+                    "code": "bad_request",
+                    "message": "No idea what this is going to be"
+                    }
+                ]
+            }
+        });
         try {
             await Concert.get("not-a-concert");
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
-            expect(err instanceof NotFoundError).toBeTruthy();
+            expect(err instanceof BadRequestError).toBeTruthy();
         }
     });
 });
@@ -310,6 +357,17 @@ describe("getRandomConcertDetails", function () {
         
     });
 });
+
+
+// describe("test getPrices", function () {
+//     test("returns price", async function () {
+
+//     });
+
+//     test("returns empty string if price not found", async function () {
+
+//     });
+// });
 
 
 afterAll(async function () {

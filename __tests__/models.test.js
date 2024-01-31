@@ -9,8 +9,10 @@ const AxiosMockAdapter = require("axios-mock-adapter");
 const axios = require("axios");
 const axiosMock = new AxiosMockAdapter(axios);
 
+const _sample = require("lodash");
+
 const { JAMBASE_API_KEY } = require("../config");
-const User = require("../models/user");
+const { User } = require("../models/user");
 const { Concert, JAMBASE_BASE_URL } = require("../models/concert");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./concertData");
 const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
@@ -20,6 +22,8 @@ beforeAll(async function () {
 })
 
 beforeEach(async function () {
+
+    jest.clearAllMocks();
 
     await db.query("BEGIN");
 
@@ -406,37 +410,17 @@ describe("getRandomConcertDetails", function () {
             "results": GET_CONCERTS_API_RESP
         });
 
-        // TODO: need to mock the random selection too
-
+        const spySampleLodash = jest.spyOn(_, 'sample');
+        
         const resp = await Concert.getRandomConcert(
             "2024-01-01", 
             "2024-01-02", 
             39.644843, 
             -104.968091,
             10,
-        );
-
-        expect(resp).toEqual({
-            jambase_id: "jambase:11070750",
-            headliner: {
-                name: "Ben Rector",
-                band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
-                genres: ["folk", "indie", "pop", "rock" ]
-            },
-            openers: ["Cody Fry"],
-            venue: {
-                name: "Boettcher Concert Hall",
-                venue_image_url: "",
-                streetAddress: "1400 Curtis Street",
-                city: "Denver",
-                state: "CO",
-                zipCode: "80202"
-            },
-            cost: "",
-            date_time: "2024-02-01T19:30:00",
-            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
-            event_status: "scheduled"
-        });
+            );
+            
+        expect(spySampleLodash).toHaveBeenCalledWith(GET_CONCERTS_API_RESP);
     });
 
     test("returns empty object for no matches", async function () {

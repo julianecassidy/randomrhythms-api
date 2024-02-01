@@ -1,8 +1,6 @@
 "use strict";
 
-const AxiosMockAdapter = require("axios-mock-adapter");
-const axios = require("axios");
-const axiosMock = new AxiosMockAdapter(axios);
+const fetchMock = require("fetch-mock");
 
 const { GOOGLE_API_KEY } = require("../config");
 const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
@@ -12,18 +10,18 @@ const { BadRequestError } = require("./expressError");
 
 // REAL VERSION. RUNNING THIS TEST COUNTS AGAINST OUR API LIMIT
 describe("convertZipCodeToCoords", function () {
-    test("converts valid zip code to lat and long", function () {
+    test("converts valid zip code to lat and long", async function () {
         console.log("testing convertZipCodeToCoords; calling API")
-        const [lat, long] = convertZipCodeToCoords(80113);
+        const location = await convertZipCodeToCoords(80113);
         
-        expect(lat).toEqual(39.644843);
-        expect(long).toEqual(-104.968091);
+        expect(location.lat).toEqual(39.6448429);
+        expect(location.lng).toEqual(-104.9680914);
     });
 
-    test("throws 400 for invalid zip code", function () {
+    test("throws 400 for invalid zip code", async function () {
         console.log("testing convertZipCodeToCoords; calling API")
         try {
-            convertZipCodeToCoords("invalid_zip");
+            await convertZipCodeToCoords("invalid_zip");
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof BadRequestError).toBeTruthy();
@@ -34,11 +32,17 @@ describe("convertZipCodeToCoords", function () {
 
 // MOCKED VERSION. RUN WITHOUT RESTRAINT.
 describe("convertZipCodeToCoords", function () {
-    const zip = 80113;
+    const validZip = 80113;
 
     test("converts valid zip code to lat and long", function () {
-        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
-          .reply(200, {
+        const testParams = new URLSearchParams({
+            components: `postal_code:${validZip}|country:US`,
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`), {
+          status: 200,
+          body: {
             "results": {
                 "geometry": {
                     "location": {
@@ -48,24 +52,33 @@ describe("convertZipCodeToCoords", function () {
                 },
                 "status": "OK"
             }
-        });
+          }
+        }
 
-        const [lat, long] = convertZipCodeToCoords(80113);
+        const location = convertZipCodeToCoords(validZip);
         
-        expect(lat).toEqual(39.644843);
-        expect(long).toEqual(-104.968091);
+        expect(location.lat).toEqual(39.644843);
+        expect(location.lng).toEqual(-104.968091);
     });
 
     test("throws 400 for invalid zip code", function () {
-        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=00000&key=${GOOGLE_API_KEY}`)
-          .reply(200, {
-            "results":{
-                "status": "ZERO_RESULTS"
-            }
+        const invalidZip = "00000";
+
+        const testParams = new URLSearchParams({
+            components: `postal_code:${invalidZip}|country:US`,
+            key: GOOGLE_API_KEY,
         });
 
+        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`), {
+          status: 200,
+          body: {
+            "results": [],
+            "status": "ZERO_RESULTS"
+            }
+        }
+
         try {
-            convertZipCodeToCoords("invalid_zip");
+            convertZipCodeToCoords(invalidZip);
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof BadRequestError).toBeTruthy();
@@ -73,12 +86,20 @@ describe("convertZipCodeToCoords", function () {
     });
 
     test("throws 400 for other API errors", function () {
-        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
-          .reply(200, {
-            "results":{
-                "status": "OVER_DAILY_LIMIT"
-            }
+        const validZip = "80113";
+
+        const testParams = new URLSearchParams({
+            components: `postal_code:${validZip}|country:US`,
+            key: GOOGLE_API_KEY,
         });
+
+        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`), {
+          status: 200,
+          body: {
+            "results": [],
+            "status": "OVER_DAILY_LIMIT"
+            }
+        }
 
         try {
             convertZipCodeToCoords("invalid_zip");

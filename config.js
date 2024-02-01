@@ -11,7 +11,8 @@ const DB_URI = (process.env.NODE_ENV === "test")
     : "postgresql:///randomrhythms_test";
 
 const SECRET_KEY = process.env.SECRET_KEY || "secret";
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "googley"
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "googley";
+const JAMBASE_API_KEY = process.env.JAMBASE_API_KEY || "jambase";
 
 const BCRYPT_WORK_FACTOR = 12;
 

@@ -92,16 +92,16 @@ describe("convertZipCodeToCoords", function () {
 
 describe("checks valid dates", function () {
     test ("true for valid dates", function () {
-        expect(validateDates("2024-01-01", "2024-01-02")).toEqual(True);
-        expect(validateDates("2024-01-01", "2024-09-02")).toEqual(True);
-        expect(validateDates("2024-01-01", "2025-01-02")).toEqual(True);
-        expect(validateDates("2024-01-01", "2024-01-01")).toEqual(True);
+        expect(validateDates("2024-01-01", "2024-01-02")).toEqual(true);
+        expect(validateDates("2024-01-01", "2024-09-02")).toEqual(true);
+        expect(validateDates("2024-01-01", "2025-01-02")).toEqual(true);
+        expect(validateDates("2024-01-01", "2024-01-01")).toEqual(true);
     });
 
     test ("false for invalid dates", function () {
-        expect(validateDates("2024-02-01", "2024-01-02")).toEqual(True);
-        expect(validateDates("2024-01-02", "2024-01-01")).toEqual(True);
-        expect(validateDates("2025-01-01", "2024-01-02")).toEqual(True);
-        expect(validateDates("2024-09-01", "2024-01-01")).toEqual(True);
+        expect(validateDates("2024-02-01", "2024-01-02")).toEqual(false);
+        expect(validateDates("2024-01-02", "2024-01-01")).toEqual(false);
+        expect(validateDates("2025-01-01", "2024-01-02")).toEqual(false);
+        expect(validateDates("2024-09-01", "2024-01-01")).toEqual(false);
     });
 }) 

@@ -151,7 +151,7 @@ describe("getConcerts", function () {
                 geoRadiusUnits: mi
             }
         }).reply(200, {
-            "results": GET_CONCERT_API_RESP
+            "results": GET_CONCERTS_API_RESP
         });
 
         const resp = await Concert.getConcerts(
@@ -269,7 +269,7 @@ describe("getConcertDetails", function () {
                 apikey: JAMBASE_API_KEY,
             }
         }).reply(200, {
-            "results":  GET_CONCERTS_API_RESP
+            "results":  GET_CONCERT_API_RESP
         });
 
         const resp = await Concert.getConcert("123");

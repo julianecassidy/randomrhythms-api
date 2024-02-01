@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://randomrhythms.com/signup.schema.json",
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 50
+      },
+      "name": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 50
+      },
+      "signupCode": {
+        "type": "string",
+        "minLength": 10
+      }
+    },
+    "additionalProperties": false,
+    "required": ["email", "password", "name", "signupCode"]
+  } 

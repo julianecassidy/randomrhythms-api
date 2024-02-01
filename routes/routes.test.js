@@ -12,7 +12,9 @@ const axiosMock = new AxiosMockAdapter(axios);
 
 const _ = require("lodash");
 
-const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
+const { JAMBASE_API_KEY } = require("../config");
+const { JAMBASE_BASE_URL } = require("../models/concert");
+const { GOOGLE_BASE_URL } = require("../helpers/zipToCoords");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
 
 beforeAll(async function () {
@@ -209,7 +211,7 @@ describe("GET /concerts", function () {
             geoLatitude: 39.644843,
             geoLongitude: -104.968091,
             geoRadiusAmount: 50,
-            geoRadiusUnits: mi
+            geoRadiusUnits: "mi"
         }
     }).reply(200, {
         "results": GET_CONCERTS_API_RESP
@@ -290,7 +292,7 @@ describe("GET /concerts", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 50,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(400, {
             "results": {
@@ -357,6 +359,7 @@ describe("GET /concerts", function () {
 
 
 describe("GET /concert/:id", function () {
+    const testConcertId = 123;
     
     axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:${testConcertId}`, { 
         params: {
@@ -366,8 +369,6 @@ describe("GET /concert/:id", function () {
         "results":  GET_CONCERT_API_RESP
     });
 
-    const testConcertId = 123;
-    
     test("should return a concert", async function () {
         const response = await request(app)
             .get(`/concerts/${testConcertId}`)
@@ -450,7 +451,7 @@ describe("GET /concert/random", function () {
             geoLatitude: 39.644843,
             geoLongitude: -104.968091,
             geoRadiusAmount: 10,
-            geoRadiusUnits: mi
+            geoRadiusUnits: "mi"
         }
     }).reply(200, {
         "results": GET_CONCERTS_API_RESP

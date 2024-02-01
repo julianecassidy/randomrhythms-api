@@ -148,7 +148,7 @@ describe("getConcerts", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 5,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(200, {
             "results": GET_CONCERTS_API_RESP
@@ -214,7 +214,7 @@ describe("getConcerts", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 1,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(200, {
             "results": []
@@ -240,7 +240,7 @@ describe("getConcerts", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 10,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(400, {
             "results":  {"success": false}
@@ -357,7 +357,7 @@ describe("getRandomConcertDetails", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 10,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(200, {
             "results": GET_CONCERTS_API_RESP
@@ -404,7 +404,7 @@ describe("getRandomConcertDetails", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 10,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(200, {
             "results": GET_CONCERTS_API_RESP
@@ -432,7 +432,7 @@ describe("getRandomConcertDetails", function () {
                 geoLatitude: 39.644843,
                 geoLongitude: -104.968091,
                 geoRadiusAmount: 10,
-                geoRadiusUnits: mi
+                geoRadiusUnits: "mi"
             }
         }).reply(200, {
             "results": GET_CONCERTS_API_RESP

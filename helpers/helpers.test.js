@@ -5,8 +5,8 @@ const axios = require("axios");
 const axiosMock = new AxiosMockAdapter(axios);
 
 const { GOOGLE_API_KEY } = require("../config");
-const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("../helpers/zipToCoords");
-const { BadRequestError } = require("../helpers/expressError"); 
+const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
+const { BadRequestError } = require("./expressError"); 
  
 
 // REAL VERSION. RUNNING THIS TEST COUNTS AGAINST OUR API LIMIT

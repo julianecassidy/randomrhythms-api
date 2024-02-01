@@ -9,13 +9,13 @@ const bcrypt = require("bcrypt");
 
 const axios = require("axios");
 
-const _sample = require("lodash");
+const _ = require("lodash");
 const spySampleLodash = jest.spyOn(_, 'sample');
 
 const { JAMBASE_API_KEY } = require("../config");
-const { User } = require("../models/user");
-const { Concert, JAMBASE_BASE_URL } = require("../models/concert");
-const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./concertData");
+const { User } = require("./user");
+const { Concert, JAMBASE_BASE_URL } = require("./concert");
+const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
 const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
 
 beforeAll(async function () {

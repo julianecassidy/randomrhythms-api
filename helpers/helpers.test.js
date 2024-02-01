@@ -6,6 +6,7 @@ const axiosMock = new AxiosMockAdapter(axios);
 
 const { GOOGLE_API_KEY } = require("../config");
 const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
+const { validateDates } = require("./validators");
 const { BadRequestError } = require("./expressError"); 
  
 
@@ -33,7 +34,8 @@ describe("convertZipCodeToCoords", function () {
 
 // MOCKED VERSION. RUN WITHOUT RESTRAINT.
 describe("convertZipCodeToCoords", function () {
-    
+    const zip = 80113;
+
     test("converts valid zip code to lat and long", function () {
         axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
           .reply(200, {
@@ -55,7 +57,7 @@ describe("convertZipCodeToCoords", function () {
     });
 
     test("throws 400 for invalid zip code", function () {
-        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=${zip}&key=${GOOGLE_API_KEY}`)
+        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=00000&key=${GOOGLE_API_KEY}`)
           .reply(200, {
             "results":{
                 "status": "ZERO_RESULTS"
@@ -86,3 +88,20 @@ describe("convertZipCodeToCoords", function () {
         }
     });
 });
+
+
+describe("checks valid dates", function () {
+    test ("true for valid dates", function () {
+        expect(validateDates("2024-01-01", "2024-01-02")).toEqual(True);
+        expect(validateDates("2024-01-01", "2024-09-02")).toEqual(True);
+        expect(validateDates("2024-01-01", "2025-01-02")).toEqual(True);
+        expect(validateDates("2024-01-01", "2024-01-01")).toEqual(True);
+    });
+
+    test ("false for invalid dates", function () {
+        expect(validateDates("2024-02-01", "2024-01-02")).toEqual(True);
+        expect(validateDates("2024-01-02", "2024-01-01")).toEqual(True);
+        expect(validateDates("2025-01-01", "2024-01-02")).toEqual(True);
+        expect(validateDates("2024-09-01", "2024-01-01")).toEqual(True);
+    });
+}) 

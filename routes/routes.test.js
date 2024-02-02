@@ -6,9 +6,7 @@ const app = require("../app");
 const request = require("supertest");
 const db = require("../db");
 
-const AxiosMockAdapter = require("axios-mock-adapter");
-const axios = require("axios");
-const axiosMock = new AxiosMockAdapter(axios);
+const fetchMock = require("fetch-mock");
 
 const _ = require("lodash");
 
@@ -23,6 +21,7 @@ beforeAll(async function () {
 
 beforeEach(async function () {
 
+    fetchMock.reset();
     jest.clearAllMocks();
     
     await db.query("BEGIN");
@@ -200,22 +199,23 @@ describe("POST /auth/login", function () {
 
 
 /************************************************************* CONCERT ROUTES */
+// MOCKED VERSIONS. RUN WITHOUT RESTRAINT.
 
 describe("GET /concerts", function () {
-
-    axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-        params: {
-            apikey: JAMBASE_API_KEY,
-            eventDateFrom: "2024-01-01",
-            eventDateTo: "2024-01-02",
-            geoLatitude: 39.644843,
-            geoLongitude: -104.968091,
-            geoRadiusAmount: 50,
-            geoRadiusUnits: "mi"
-        }
-    }).reply(200, {
-        "results": GET_CONCERTS_API_RESP
+    const params = new URLSearchParams({
+        apikey: JAMBASE_API_KEY,
+        eventDateFrom: "2024-01-01",
+        eventDateTo: "2024-01-02",
+        geoLatitude: 39.644843,
+        geoLongitude: -104.968091,
+        geoRadiusAmount: 50,
+        geoRadiusUnits: "mi"
     });
+
+    fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+        status: 200,
+        body: { GET_CONCERTS_API_RESP },
+    })
 
     const validConcertQuery = { 
         dateFrom: "2024-01-01", 
@@ -284,25 +284,26 @@ describe("GET /concerts", function () {
     });
 
     test("throws 400 for invalid dates in the past", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2023-01-01",
-                eventDateTo: "2023-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 50,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(400, {
-            "results": {
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2023-01-01",
+            eventDateTo: "2023-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 50,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 400,
+            body: {
                 "success": false,
                 "errors": [
                   {
                     "code": "invalid_param",
                     "message": "The `eventDateFrom` must be on or after 2024-01-31."
                   }
-                ]}
+                ]},
         });
 
         const response = await request(app)
@@ -314,6 +315,31 @@ describe("GET /concerts", function () {
     });
 
     test("throws 400 for invalid dates start after finish", async function () {
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-02-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 50,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 200,
+            body: {
+                "success": true,
+                "pagination": {
+                    "page": 1,
+                    "perPage": 40,
+                    "totalItems": 0,
+                    "totalPages": 1,
+                    "nextPage": null,
+                    "previousPage": null
+                },
+                "events": []
+            },
+        });
 
         const response = await request(app)
             .get("/concerts/")
@@ -324,12 +350,21 @@ describe("GET /concerts", function () {
     });
 
     test("throws 400 for invalid zip code", async function () {
-        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=00000&key=${GOOGLE_API_KEY}`)
-        .reply(200, {
-          "results":{
-              "status": "ZERO_RESULTS"
-          }
+        const invalidZip = "00000";
+
+        const testParams = new URLSearchParams({
+            components: `postal_code:${invalidZip}|country:US`,
+            key: GOOGLE_API_KEY,
         });
+
+        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+          status: 200,
+          body: {
+            "results": [],
+            "status": "ZERO_RESULTS"
+            }
+        });
+
         const response = await request(app)
             .get("/concerts/")
             .query({ ...validConcertQuery, zip: "00000" })
@@ -360,15 +395,13 @@ describe("GET /concerts", function () {
 
 describe("GET /concert/:id", function () {
     const testConcertId = 123;
-    
-    axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:${testConcertId}`, { 
-        params: {
-            apikey: JAMBASE_API_KEY,
-        }
-    }).reply(200, {
-        "results":  GET_CONCERT_API_RESP
-    });
 
+    fetchMock.get(
+        `${JAMBASE_BASE_URL}/events/id/jambase:${testConcertId}?key=${JAMBASE_API_KEY}`, {
+        status: 200,
+        body: { GET_CONCERT_API_RESP }
+    });
+    
     test("should return a concert", async function () {
         const response = await request(app)
             .get(`/concerts/${testConcertId}`)
@@ -408,17 +441,17 @@ describe("GET /concert/:id", function () {
     });
 
     test("throws 404 for not found concert id", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:not-a-concert`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-            }
-        }).reply(400, {
-            "results": {
+        const invalidConcertId = "not-a-concert";
+
+        fetchMock.get(
+            `${JAMBASE_BASE_URL}/events/id/jambase:${invalidConcertId}?key=${JAMBASE_API_KEY}`, {
+            status: 400,
+            body: {
                 "success": false,
                 "errors": [
                     {
-                    "code": "identifier_invalid",
-                    "message": "No event found for `jambase` event id `not-a-concert`"
+                        "code": "identifier_invalid",
+                        "message": "No event found for `jambase` event id `not-a-concert`"
                     }
                 ]
             }
@@ -443,18 +476,19 @@ describe("GET /concert/:id", function () {
 
 describe("GET /concert/random", function () {
 
-    axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-        params: {
-            apikey: JAMBASE_API_KEY,
-            eventDateFrom: "2024-01-01",
-            eventDateTo: "2024-01-02",
-            geoLatitude: 39.644843,
-            geoLongitude: -104.968091,
-            geoRadiusAmount: 10,
-            geoRadiusUnits: "mi"
-        }
-    }).reply(200, {
-        "results": GET_CONCERTS_API_RESP
+    const params = new URLSearchParams({
+        apikey: JAMBASE_API_KEY,
+        eventDateFrom: "2024-01-01",
+        eventDateTo: "2024-01-02",
+        geoLatitude: 39.644843,
+        geoLongitude: -104.968091,
+        geoRadiusAmount: 5,
+        geoRadiusUnits: "mi"
+    });
+
+    fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+        status: 200,
+        body: { GET_CONCERTS_API_RESP },
     });
 
     const validRandomQuery = { 
@@ -538,12 +572,21 @@ describe("GET /concert/random", function () {
     });
 
     test("throws 400 for invalid zip code", async function () {
-        axiosMock.onGet(`${GOOGLE_BASE_URL}/?address=00000&key=${GOOGLE_API_KEY}`)
-        .reply(200, {
-          "results":{
-              "status": "ZERO_RESULTS"
-          }
+        const invalidZip = "00000";
+
+        const testParams = new URLSearchParams({
+            components: `postal_code:${invalidZip}|country:US`,
+            key: GOOGLE_API_KEY,
         });
+
+        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+          status: 200,
+          body: {
+            "results": [],
+            "status": "ZERO_RESULTS"
+            }
+        });
+
         const response = await request(app)
             .get("/concerts/")
             .query({ ...validRandomQuery, zip: "00000" })

@@ -65,14 +65,14 @@ describe("convertZipCodeToCoords", function () {
     });
 
     test("throws 400 for invalid zip code", async function () {
+        fetchMock.reset();
+
         const invalidZip = "00000";
 
         const testParams = new URLSearchParams({
             components: `postal_code:${invalidZip}|country:US`,
             key: GOOGLE_API_KEY,
         });
-
-        fetchMock.reset();
 
         fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
           status: 200,
@@ -91,14 +91,14 @@ describe("convertZipCodeToCoords", function () {
     });
 
     test("throws 400 for other API errors", async function () {
+        fetchMock.reset();
+
         const validZip = "80113";
 
         const testParams = new URLSearchParams({
             components: `postal_code:${validZip}|country:US`,
             key: GOOGLE_API_KEY,
         });
-
-        fetchMock.reset();
 
         fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
           status: 200,

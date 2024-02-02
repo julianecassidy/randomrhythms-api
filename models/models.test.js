@@ -5,9 +5,7 @@ process.env.NODE_ENV = "test";
 const db = require("../db");
 const bcrypt = require("bcrypt");
 
-const AxiosMockAdapter = require("axios-mock-adapter");
-const axios = require("axios");
-const axiosMock = new AxiosMockAdapter(axios);
+const fetchMock = require("fetch-mock");
 
 const _ = require("lodash");
 
@@ -23,6 +21,7 @@ beforeAll(async function () {
 
 beforeEach(async function () {
 
+    fetchMock.reset();
     jest.clearAllMocks();
 
     await db.query("BEGIN");
@@ -72,8 +71,8 @@ describe("register", function () {
         });
 
         expect(user).toEqual({
-            name: "New", 
-            email: "new@test.com", 
+            name: "New",
+            email: "new@test.com",
             id: expect.any(Number),
         });
     });
@@ -108,29 +107,29 @@ describe("login", function () {
     test("works with correct credentials", async function () {
         const user = await User.authenticate("test@test.com", "password");
         expect(user).toEqual({
-          name: "Test",
-          email: "test@test.com",
-          id: expect.any(Number),
+            name: "Test",
+            email: "test@test.com",
+            id: expect.any(Number),
         });
-      });
-    
-      test("throws 401 if no such user", async function () {
+    });
+
+    test("throws 401 if no such user", async function () {
         try {
-          await User.authenticate("not-a-user", "password");
-          throw new Error("fail test, you shouldn't get here");
+            await User.authenticate("not-a-user", "password");
+            throw new Error("fail test, you shouldn't get here");
         } catch (err) {
-          expect(err instanceof UnauthorizedError).toBeTruthy();
+            expect(err instanceof UnauthorizedError).toBeTruthy();
         }
-      });
-    
-      test("throws 401 if wrong password", async function () {
+    });
+
+    test("throws 401 if wrong password", async function () {
         try {
-          await User.authenticate("test@test.com", "wrong");
-          throw new Error("fail test, you shouldn't get here");
+            await User.authenticate("test@test.com", "wrong");
+            throw new Error("fail test, you shouldn't get here");
         } catch (err) {
-          expect(err instanceof UnauthorizedError).toBeTruthy();
+            expect(err instanceof UnauthorizedError).toBeTruthy();
         }
-      });
+    });
 })
 
 
@@ -138,26 +137,27 @@ describe("login", function () {
 // MOCKED VERSIONS. RUN WITHOUT RESTRAINT.
 
 describe("getConcerts", function () {
-    
+
     test("returns a list of concerts data", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2024-01-01",
-                eventDateTo: "2024-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 5,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(200, {
-            "results": GET_CONCERTS_API_RESP
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 5,
+            geoRadiusUnits: "mi"
         });
 
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 200,
+            body: { GET_CONCERTS_API_RESP },
+        })
+
         const resp = await Concert.getConcerts(
-            "2024-01-01", 
-            "2024-01-02", 
-            39.644843, 
+            "2024-01-01",
+            "2024-01-02",
+            39.644843,
             -104.968091,
             5
         );
@@ -166,8 +166,8 @@ describe("getConcerts", function () {
             jambase_id: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
-                band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
-                genres: ["folk", "indie", "pop", "rock" ]
+                band_image, _url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                genres: ["folk", "indie", "pop", "rock"]
             },
             openers: ["Cody Fry"],
             venue: {
@@ -186,7 +186,7 @@ describe("getConcerts", function () {
             jambase_id: "jambase:11297801",
             headliner: {
                 name: "Silent Planet",
-                band_image,_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg", 
+                band_image, _url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
                 genres: ["metal", "punk"]
             },
             openers: ["Thornhill", "Aviana", "Johnny Booth"],
@@ -206,24 +206,36 @@ describe("getConcerts", function () {
     });
 
     test("returns an empty list if no matching concerts", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2024-01-01",
-                eventDateTo: "2024-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 1,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(200, {
-            "results": []
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 1,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 200,
+            body: {
+                "success": true,
+                "pagination": {
+                    "page": 1,
+                    "perPage": 40,
+                    "totalItems": 0,
+                    "totalPages": 1,
+                    "nextPage": null,
+                    "previousPage": null
+                },
+                "events": []
+            },
         });
 
         const resp = await Concert.getConcerts(
-            "2024-01-01", 
-            "2024-01-02", 
-            39.644843, 
+            "2024-01-01",
+            "2024-01-02",
+            39.644843,
             -104.968091,
             1
         );
@@ -232,25 +244,26 @@ describe("getConcerts", function () {
     });
 
     test("throw 400 if API call fails", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2024-01-01",
-                eventDateTo: "2024-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 10,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(400, {
-            "results":  {"success": false}
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 10,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 400,
+            body: { "success": false },
         });
 
         try {
             await Concert.getConcerts(
-                "2024-01-01", 
-                "2024-01-02", 
-                39.644843, 
+                "2024-01-01",
+                "2024-01-02",
+                39.644843,
                 -104.968091,
                 10
             );
@@ -264,22 +277,22 @@ describe("getConcerts", function () {
 
 describe("getConcertDetails", function () {
     test("returns a concert", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:123`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-            }
-        }).reply(200, {
-            "results":  GET_CONCERT_API_RESP
+        const testConcertId = 123;
+
+        fetchMock.get(
+            `${JAMBASE_BASE_URL}/events/id/jambase:${testConcertId}?key=${JAMBASE_API_KEY}`, {
+            status: 200,
+            body: { GET_CONCERT_API_RESP }
         });
 
-        const resp = await Concert.getConcert("123");
+        const resp = await Concert.getConcert(testConcertId);
 
         expcet(resp).toEqual({
             jambase_id: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
-                band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
-                genres: ["folk", "indie", "pop", "rock" ]
+                band_image, _url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                genres: ["folk", "indie", "pop", "rock"]
             },
             openers: ["Cody Fry"],
             venue: {
@@ -298,23 +311,24 @@ describe("getConcertDetails", function () {
     });
 
     test("throw 404 if no such concert", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:not-a-concert`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-            }
-        }).reply(400, {
-            "results": {
+        const invalidConcertId = "not-a-concert";
+
+        fetchMock.get(
+            `${JAMBASE_BASE_URL}/events/id/jambase:${invalidConcertId}?key=${JAMBASE_API_KEY}`, {
+            status: 400,
+            body: {
                 "success": false,
                 "errors": [
                     {
-                    "code": "identifier_invalid",
-                    "message": "No event found for `jambase` event id `not-a-concert`"
+                        "code": "identifier_invalid",
+                        "message": "No event found for `jambase` event id `not-a-concert`"
                     }
                 ]
             }
         });
+
         try {
-            await Concert.get("not-a-concert");
+            await Concert.get(invalidConcertId);
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof NotFoundError).toBeTruthy();
@@ -322,21 +336,19 @@ describe("getConcertDetails", function () {
     });
 
     test("throw 400 if API request fails", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events/id/jambase:not-a-concert`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-            }
-        }).reply(400, {
-            "results": {
+        fetchMock.get(`${JAMBASE_BASE_URL}/events/id?key=${JAMBASE_API_KEY}`, {
+            status: 400,
+            body: {
                 "success": false,
                 "errors": [
                     {
-                    "code": "bad_request",
-                    "message": "No idea what this is going to be"
+                        "code": "bad_request",
+                        "message": "No idea what this is going to be"
                     }
                 ]
             }
         });
+
         try {
             await Concert.get("not-a-concert");
             throw new Error("fail test, you shouldn't get here");
@@ -349,24 +361,25 @@ describe("getConcertDetails", function () {
 
 describe("getRandomConcertDetails", function () {
     test("returns a concert with all filters", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2024-01-01",
-                eventDateTo: "2024-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 10,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(200, {
-            "results": GET_CONCERTS_API_RESP
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 10,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 200,
+            body: { GET_CONCERTS_API_RESP },
         });
 
         const resp = await Concert.getRandomConcert(
-            "2024-01-01", 
-            "2024-01-02", 
-            39.644843, 
+            "2024-01-01",
+            "2024-01-02",
+            39.644843,
             -104.968091,
             10,
             30
@@ -376,7 +389,7 @@ describe("getRandomConcertDetails", function () {
             jambase_id: "jambase:11297801",
             headliner: {
                 name: "Silent Planet",
-                band_image,_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg", 
+                band_image, _url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
                 genres: ["metal", "punk"]
             },
             openers: ["Thornhill", "Aviana", "Johnny Booth"],
@@ -396,52 +409,54 @@ describe("getRandomConcertDetails", function () {
     });
 
     test("returns a concert without price filter", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2024-01-01",
-                eventDateTo: "2024-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 10,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(200, {
-            "results": GET_CONCERTS_API_RESP
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 10,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 200,
+            body: { GET_CONCERTS_API_RESP },
         });
 
         const spySampleLodash = jest.spyOn(_, 'sample');
-        
+
         const resp = await Concert.getRandomConcert(
-            "2024-01-01", 
-            "2024-01-02", 
-            39.644843, 
+            "2024-01-01",
+            "2024-01-02",
+            39.644843,
             -104.968091,
             10,
-            );
-            
+        );
+
         expect(spySampleLodash).toHaveBeenCalledWith(GET_CONCERTS_API_RESP);
     });
 
     test("returns empty object for no matches", async function () {
-        axiosMock.onGet(`${JAMBASE_BASE_URL}/events`, { 
-            params: {
-                apikey: JAMBASE_API_KEY,
-                eventDateFrom: "2024-01-01",
-                eventDateTo: "2024-01-02",
-                geoLatitude: 39.644843,
-                geoLongitude: -104.968091,
-                geoRadiusAmount: 10,
-                geoRadiusUnits: "mi"
-            }
-        }).reply(200, {
-            "results": GET_CONCERTS_API_RESP
+        const params = new URLSearchParams({
+            apikey: JAMBASE_API_KEY,
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 10,
+            geoRadiusUnits: "mi"
+        });
+
+        fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+            status: 200,
+            body: { GET_CONCERTS_API_RESP }
         });
 
         const resp = await Concert.getRandomConcert(
-            "2024-01-01", 
-            "2024-01-02", 
-            39.644843, 
+            "2024-01-01",
+            "2024-01-02",
+            39.644843,
             -104.968091,
             10,
             10

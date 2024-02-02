@@ -19,10 +19,17 @@ The languages and frameworks in this project include:
 Back End:
 - Node
 - Express
-- Axios
+- Postgres
 
 Front End:
 - React
+
+APIs:
+- [JamBase API](https://apidocs.jambase.com/)
+- [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview)
+
+### Project Outline
+Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for the project, including database schema, API routes, and React component heirarchy.
 
 ## Getting Started
 
@@ -44,14 +51,20 @@ This project contains both a backend API and (eventually) a frontend React app. 
    ```sh
    npm install
    ```
-3. Get an API key
+3. Get API keys
     This project uses the [JamBase API](https://apidocs.jambase.com/). Request an API key from their site.
+
+    It also uses the [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview). Set up a Google Cloud project to get an API key.
 4. Create a .env
     Add a .env file in /randomrhythms-api.
     Add the following
     ```
     JAMBASE_API_KEY = {enter your JamBase API key}
+    GOOGLE_API_KEY = {enter your Google Maps API key}
+    SIGN_UP_CODE = {any string}
     ```
+
+    The sign up code allows you to limit who can sign up for the app if deployed live since these are not free APIs.
 5. Start a local development server
     ```sh
     node server.js

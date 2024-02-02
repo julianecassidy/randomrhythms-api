@@ -20,8 +20,6 @@ async function convertZipCodeToCoords(zipCode) {
         {method: 'GET'}
     )
     const locationData = await resp.json();
-
-    console.log(locationData);
     
     if (locationData.status === "OK") {
         return locationData.results[0].geometry.location;

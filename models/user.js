@@ -2,16 +2,12 @@
 
 const db = require("../db");
 const bcrypt = require("bcrypt");
-const {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-} = require("../helpers/expressError");
+const { BadRequestError, UnauthorizedError } = require("../helpers/expressError");
 const SIGN_UP_CODE = process.env.SIGN_UP_CODE;
 
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
 
-/** User function */
+/** Users. */
 class User {
 
     /** Register user with email, name, password, and code. 

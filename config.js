@@ -22,4 +22,5 @@ module.exports = {
   SECRET_KEY,
   GOOGLE_API_KEY,
   BCRYPT_WORK_FACTOR,
+  JAMBASE_API_KEY,
 };

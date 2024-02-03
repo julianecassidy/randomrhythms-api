@@ -57,7 +57,7 @@ class Concert {
 
       const resp = await fetch(`${JAMBASE_BASE_URL}events?${params}`);
       const concertData = await resp.json();
-      
+
       if (concertData.success === true) {
          const concerts = concertData.events.map(c => this.formatConcertData(c));
          return concerts;
@@ -123,7 +123,18 @@ class Concert {
     * Throws 400 if API request fails.
     */
    static async getConcertDetails(id) {
+      const params = new URLSearchParams({apikey: JAMBASE_API_KEY});
+      const resp = await fetch(`${JAMBASE_BASE_URL}events/id/${id}?${params}`);
+      const concertData = await resp.json();
 
+      console.log(concertData);
+      if (concertData.success === true) {
+         return this.formatConcertData(concertData.event);
+      } else if (concertData.errors[0].code === "identifier_invalid") {
+         throw new NotFoundError;
+      } else {
+         throw new BadRequestError;
+      }
    }
 
    /** Takes dateFrom, dateTo, latitude, longitude, geoRadius, price. geoRadius

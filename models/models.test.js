@@ -14,8 +14,10 @@ const { JAMBASE_API_KEY } = require("../config");
 const { User } = require("./user");
 const { Concert, JAMBASE_BASE_URL } = require("./concert");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
-const { UnauthorizedError, BadRequestError } = require("../helpers/expressError");
-const { raw } = require("express");
+const { 
+    UnauthorizedError, 
+    BadRequestError, 
+    NotFoundError } = require("../helpers/expressError");
 
 beforeAll(async function () {
     await db.query("DELETE FROM users");
@@ -49,103 +51,103 @@ afterEach(async function () {
 
 
 /***************************************************************** USER CLASS */
-// describe("validateSignUpCode", function () {
-//     const testCode = "welcome";
+describe("validateSignUpCode", function () {
+    const testCode = "welcome";
 
-//     test("returns true for valid code", function () {
-//         expect(User.validateSignUpCode("welcome", testCode)).toBe(true);
-//     });
+    test("returns true for valid code", function () {
+        expect(User.validateSignUpCode("welcome", testCode)).toBe(true);
+    });
 
-//     test("returns false for invalid code", function () {
-//         expect(User.validateSignUpCode("wrong", testCode)).toBe(false);
-//     });
+    test("returns false for invalid code", function () {
+        expect(User.validateSignUpCode("wrong", testCode)).toBe(false);
+    });
 
-// })
+})
 
-// describe("register", function () {
-//     const newUser = {
-//         password: "password",
-//         name: "New",
-//         email: "new@test.com",
-//     };
+describe("register", function () {
+    const newUser = {
+        password: "password",
+        name: "New",
+        email: "new@test.com",
+    };
 
-//     test("can register", async function () {
-//         const user = await User.register({
-//             ...newUser, code: "welcome"
-//         });
+    test("can register", async function () {
+        const user = await User.register({
+            ...newUser, code: "welcome"
+        });
 
-//         expect(user).toEqual({
-//             name: "New",
-//             email: "new@test.com",
-//             id: expect.any(Number),
-//         });
-//     });
+        expect(user).toEqual({
+            name: "New",
+            email: "new@test.com",
+            id: expect.any(Number),
+        });
+    });
 
-//     test("throw 400 for bad data", async function () {
-//         try {
-//             const user = await User.register({
-//                 password: "password",
-//                 first_name: "TestF",
-//             });
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof BadRequestError).toBeTruthy();
-//         }
-//     });
+    test("throw 400 for bad data", async function () {
+        try {
+            const user = await User.register({
+                password: "password",
+                first_name: "TestF",
+            });
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
 
-//     test("throw 400 for bad sign up code", async function () {
-//         try {
-//             const user = await User.register({
-//                 ...newUser, code: "wrong"
-//             });
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof BadRequestError).toBeTruthy();
-//         }
-//     });
+    test("throw 400 for bad sign up code", async function () {
+        try {
+            const user = await User.register({
+                ...newUser, code: "wrong"
+            });
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
 
-//     test("throw 400 for duplicate email", async function () {
-//         try {
-//             const user = await User.register({
-//                 password: "password",
-//                 name: "TestF",
-//                 email: "test@test.com",
-//             });
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof BadRequestError).toBeTruthy();
-//         }
-//     });
-// });
+    test("throw 400 for duplicate email", async function () {
+        try {
+            const user = await User.register({
+                password: "password",
+                name: "TestF",
+                email: "test@test.com",
+            });
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
+});
 
-// describe("authenticate", function () {
-//     test("works with correct credentials", async function () {
-//         const user = await User.authenticate("test@test.com", "password");
-//         expect(user).toEqual({
-//             name: "Test",
-//             email: "test@test.com",
-//             id: expect.any(Number),
-//         });
-//     });
+describe("authenticate", function () {
+    test("works with correct credentials", async function () {
+        const user = await User.authenticate("test@test.com", "password");
+        expect(user).toEqual({
+            name: "Test",
+            email: "test@test.com",
+            id: expect.any(Number),
+        });
+    });
 
-//     test("throws 401 if no such user", async function () {
-//         try {
-//             await User.authenticate("not-a-user", "password");
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof UnauthorizedError).toBeTruthy();
-//         }
-//     });
+    test("throws 401 if no such user", async function () {
+        try {
+            await User.authenticate("not-a-user", "password");
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof UnauthorizedError).toBeTruthy();
+        }
+    });
 
-//     test("throws 401 if wrong password", async function () {
-//         try {
-//             await User.authenticate("test@test.com", "wrong");
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof UnauthorizedError).toBeTruthy();
-//         }
-//     });
-// })
+    test("throws 401 if wrong password", async function () {
+        try {
+            await User.authenticate("test@test.com", "wrong");
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof UnauthorizedError).toBeTruthy();
+        }
+    });
+})
 
 
 /************************************************************** CONCERT CLASS */
@@ -321,88 +323,88 @@ describe("formatConcertData", function () {
 })
 
 
-// describe("getConcertDetails", function () {
-//     test("returns a concert", async function () {
-//         const testConcertId = "jambase:123";
+describe("getConcertDetails", function () {
+    test("returns a concert", async function () {
+        const testConcertId = "jambase:123";
 
-//         fetchMock.get(
-//             `${JAMBASE_BASE_URL}/events/id/${testConcertId}?key=${JAMBASE_API_KEY}`, {
-//             status: 200,
-//             body: { GET_CONCERT_API_RESP }
-//         });
+        fetchMock.get(
+            `${JAMBASE_BASE_URL}events/id/${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
+            status: 200,
+            body: GET_CONCERT_API_RESP
+        });
 
-//         const resp = await Concert.getConcert(testConcertId);
+        const resp = await Concert.getConcertDetails(testConcertId);
 
-//         expcet(resp).toEqual({
-//             jambase_id: "jambase:11070750",
-//             headliner: {
-//                 name: "Ben Rector",
-//                 band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
-//                 genres: ["folk", "indie", "pop", "rock"]
-//             },
-//             openers: ["Cody Fry"],
-//             venue: {
-//                 name: "Boettcher Concert Hall",
-//                 venue_image_url: "",
-//                 streetAddress: "1400 Curtis Street",
-//                 city: "Denver",
-//                 state: "CO",
-//                 zipCode: "80202"
-//             },
-//             cost: "",
-//             date_time: "2024-02-01T19:30:00",
-//             ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
-//             event_status: "scheduled"
-//         });
-//     });
+        expect(resp).toEqual({
+            jambase_id: "jambase:11070750",
+            headliner: {
+                name: "Ben Rector",
+                band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                genres: ["folk", "indie", "pop", "rock"]
+            },
+            openers: ["Cody Fry"],
+            venue: {
+                name: "Boettcher Concert Hall",
+                venue_image_url: "",
+                streetAddress: "1400 Curtis Street",
+                city: "Denver",
+                state: "CO",
+                zipCode: "80202"
+            },
+            cost: "",
+            date_time: "2024-02-01T19:30:00",
+            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
+            event_status: "scheduled"
+        });
+    });
 
-//     test("throw 404 if no such concert", async function () {
-//         const invalidConcertId = "not-a-concert";
+    test("throw 404 if no such concert", async function () {
+        const invalidConcertId = "not-a-concert";
 
-//         fetchMock.get(
-//             `${JAMBASE_BASE_URL}/events/id/${invalidConcertId}?key=${JAMBASE_API_KEY}`, {
-//             status: 400,
-//             body: {
-//                 "success": false,
-//                 "errors": [
-//                     {
-//                         "code": "identifier_invalid",
-//                         "message": "No event found for `jambase` event id `not-a-concert`"
-//                     }
-//                 ]
-//             }
-//         });
+        fetchMock.get(
+            `${JAMBASE_BASE_URL}events/id/${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
+            status: 400,
+            body: {
+                "success": false,
+                "errors": [
+                    {
+                        "code": "identifier_invalid",
+                        "message": "No event found for `jambase` event id `not-a-concert`"
+                    }
+                ]
+            }
+        });
 
-//         try {
-//             await Concert.get(invalidConcertId);
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof NotFoundError).toBeTruthy();
-//         }
-//     });
+        try {
+            await Concert.getConcertDetails(invalidConcertId);
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof NotFoundError).toBeTruthy();
+        }
+    });
 
-//     test("throw 400 if API request fails", async function () {
-//         fetchMock.get(`${JAMBASE_BASE_URL}/events/id?key=${JAMBASE_API_KEY}`, {
-//             status: 400,
-//             body: {
-//                 "success": false,
-//                 "errors": [
-//                     {
-//                         "code": "bad_request",
-//                         "message": "No idea what this is going to be"
-//                     }
-//                 ]
-//             }
-//         });
+    test("throw 400 if API request fails", async function () {
+        fetchMock.get(`${JAMBASE_BASE_URL}events/id/undefined?apikey=${JAMBASE_API_KEY}`, {
+            status: 400,
+            body: {
+                "success": false,
+                "errors": [
+                    {
+                        "code": "bad_request",
+                        "message": "No idea what this is going to be"
+                    }
+                ]
+            }
+        });
 
-//         try {
-//             await Concert.get();
-//             throw new Error("fail test, you shouldn't get here");
-//         } catch (err) {
-//             expect(err instanceof BadRequestError).toBeTruthy();
-//         }
-//     });
-// });
+        try {
+            await Concert.getConcertDetails();
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
+});
 
 
 // describe("getRandomConcertDetails", function () {

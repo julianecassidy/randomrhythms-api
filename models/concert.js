@@ -1,12 +1,9 @@
 "use strict";
 
+const _ = require("lodash");
+
 const { JAMBASE_API_KEY } = require("../config");
-const db = require("../db");
-const {
-   BadRequestError,
-   UnauthorizedError,
-   NotFoundError
-} = require("../helpers/expressError");
+const { BadRequestError, NotFoundError } = require("../helpers/expressError");
 
 const JAMBASE_BASE_URL = "https://www.jambase.com/jb-api/v1/"
 const DEFAULT_GEO_RADIUS = 50;
@@ -58,6 +55,8 @@ class Concert {
       const resp = await fetch(`${JAMBASE_BASE_URL}events?${params}`);
       const concertData = await resp.json();
 
+      console.log(concertData);
+
       if (concertData.success === true) {
          const concerts = concertData.events.map(c => this.formatConcertData(c));
          return concerts;
@@ -100,24 +99,24 @@ class Concert {
 
    /** Takes concert id string like "jambase:123"
     * Returns: {
-       jambase_id,
-       headliner: {
-       name,
-       band_image,_url
-       genres
-       },
-       openers: [{name, genres}]
-       venue: {
-       name,
-       venue_image_url,
-       address
-       },
-       cost,
-       date_time,
-       door_time,
-       age limit,
-       ticket_url,
-       event_status
+         jambase_id,
+         headliner: {
+            name,
+            band_image,_url
+            genres
+         },
+         openers: [{name, genres}]
+         venue: {
+            name,
+            venue_image_url,
+            address
+         },
+         cost,
+         date_time,
+         door_time,
+         age limit,
+         ticket_url,
+         event_status
        }
     * Throws 404 if concert is not found.
     * Throws 400 if API request fails.
@@ -127,7 +126,6 @@ class Concert {
       const resp = await fetch(`${JAMBASE_BASE_URL}events/id/${id}?${params}`);
       const concertData = await resp.json();
 
-      console.log(concertData);
       if (concertData.success === true) {
          return this.formatConcertData(concertData.event);
       } else if (concertData.errors[0].code === "identifier_invalid") {
@@ -141,32 +139,64 @@ class Concert {
     * and price are optional. 
     * Returns one concert that matches filters:
     * {
-       jambase_id,
-       headliner: {
-       name,
-       band_image,_url
-       genres
-       },
-       openers: [{name, genres}]
-       venue: {
-       name,
-       venue_image_url,
-       address
-       },
-       cost,
-       date_time,
-       door_time,
-       age limit,
-       ticket_url,
-       event_status
+         jambase_id,
+         headliner: {
+            name,
+            band_image,_url
+            genres
+         },
+         openers: [{name, genres}]
+         venue: {
+            name,
+            venue_image_url,
+            address
+         },
+         cost,
+         date_time,
+         door_time,
+         age limit,
+         ticket_url,
+         event_status
        }
     * If no concerts match filters, returns {}.
     * Throws 400 if API requet fails on bad data or other problem.
      */
-   static async getRandomConcertDetails() {
+   static async getRandomConcertDetails({
+      dateFrom,
+      dateTo,
+      lat,
+      lng,
+      geoRadius = DEFAULT_GEO_RADIUS,
+      price
+   }) {
+
+      const concerts = await this.getConcerts({
+         dateFrom,
+         dateTo,
+         lat,
+         lng,
+         geoRadius,
+      })
+
+      // no matching concerts
+      if (concerts.length === 0) return [];
+
+      // no price given
+      if (!price) return _.sample(concerts);
+
+      // price given
+      const concertsUnderPrice = concerts.filter(
+         c => (c.cost !== "" && c.cost <= price)
+      );
+
+      if (concertsUnderPrice.length === 0) return [];
+
+      return _.sample(concertsUnderPrice);
+      
 
    }
 }
+
 
 
 module.exports = { Concert, JAMBASE_BASE_URL };

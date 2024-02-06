@@ -1,8 +1,53 @@
-# RandomRhythms
+<a name="readme-top"></a>
+<div align="center">
 
-Random concerts => new favorite bands
+  <h1 align="center">RandomRhythms</h1>
 
-## Project Info
+  <p align="center">
+    Random concerts => new favorite bands
+    <br />
+    <br />
+    <!-- <a href="https://julianecassidy.com/" target="_blank">Demo</a> -->
+    </p>
+</div>
+<div align="center">
+
+![Top Languages](https://img.shields.io/github/languages/top/julianecassidy/randomrhythms-api)
+![GitHub repo size](https://img.shields.io/github/repo-size/julianecassidy/randomrhythms-api)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/julianecassidy/randomrhythms-api)
+![GitHub last commit](https://img.shields.io/github/last-commit/julianecassidy/randomrhythms-api)
+<!-- ![GitHub](https://img.shields.io/github/license/julianecassidy/randomrhythms-api) -->
+
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+         <!-- <li><a href="#screenshots">Screenshots</a></li> -->
+        <li><a href="#key-features">Key Features</a></li>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <!-- <li><a href="#license">License</a></li> -->
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
+
+<!-- ABOUT THE PROJECT -->
+
+## About The Project
+
 It starts in December 2023 when the year's Spotify Wrapped came out. Mine was, frankly, embarassing. This is mostly because I listen to the same five songs over and over, and I think my roommates might kick me out if I listen to "Born to Run" by Bruce Springsteen one more time.
 
 The 2024 goal is to find new music.
@@ -13,23 +58,76 @@ Instead of choosing a concert by the band, RandomRhythms helps you choose a conc
 
 Listen to new sounds, check out new local venues, and really shake up your Spotify Wrapped.
 
+Through this project, I've enjoyed learning more about:
+
+- User authentication and authorization
+- User sessions and cookies
+- Password hashing and encryption
+- Building RESTful APIs
+- Google Maps API and geocoding
+- Web scraping ticketing websites for pricing data (without getting my IP banned for being a bot)
+- Test driven development
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ### Screenshots
+
+<p>
+  <img src="static/images/screenshots/timeline.png" alt="Logged In Timeline">
+  <br>
+  <em>Logged-In Timeline</em>
+</p>
+
+<p>
+  <img src="static/images/screenshots/profile.png" alt="User Profile Page">
+  <br>
+  <em>User Profile Page</em>
+</p>
+
+<p>
+  <img src="static/images/screenshots/followers.png" alt="Followers Listing Page">
+  <br>
+  <em>Followers Listing Page</em>
+</p>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+
+### Key Features
+
+Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for the project, including database schema, API routes, and React component heirarchy.
+
+Through the API, users can:
+
+- Create an with a sign up code
+- Get a list of all concerts based on date and city
+- Get a single concert by id
+- Get a random concert based on date, city, and price
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Built With
-The languages and frameworks in this project include:
+
+This project began in January 2024 and uses the following:
 
 Back End:
-- Node
-- Express
-- Postgres
+- ![Express][Express]
+- ![PostgreSQL][PostgreSQL]
+- ![Node.js][Node.js]
 
 Front End:
-- React
+- ![React][React]
+- ![Vite][Vite]
 
 APIs:
 - [JamBase API](https://apidocs.jambase.com/)
 - [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview)
 
-### Project Outline
-Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for the project, including database schema, API routes, and React component heirarchy.
+See [requirements.txt](https://github.com/julianecassidy/randomrhythms-api/blob/master/requirements.txt) for a full list of dependencies.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- GETTING STARTED -->
 
 ## Getting Started
 
@@ -70,12 +168,55 @@ This project contains both a backend API and (eventually) a frontend React app. 
     node server.js
     ```
 
-## Authors
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Juliane Cassidy - @julianecassidy
+<!-- ROADMAP -->
+
+## Roadmap
+
+- [ ] Add pricing data from ticketing websites when not provided by API.
+- [ ] Enabling filtering by genre on random concert selection.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+
+<!-- LICENSE -->
+
+
+<!-- CONTACT -->
+
+## Contact
+
+[JulianeCassidy](https://julianecassidy.com)
+[LinkedIn](https://www.linkedin.com/in/julianemcassidy/)
+
+Project Link: [https://github.com/julianecassidy/randomrhythms-api](https://github.com/julianecassidy/randomrhythms-api)
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- VERSION HISTORY -->
 
 ## Version History
 - 1.0.0 (in production)
 
-## Acknowledgements
+<!-- ACKNOWLEDGMENTS -->
+
+## Acknowledgments
+
+- [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+- [Img Shields](https://shields.io)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- TECHNOLOGY BADGES -->
+
+
+[React]: https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=white
+[Vite]: https://img.shields.io/badge/Vite-61a5ff?logo=vite&logoColor=black
+[Express]: https://img.shields.io/badge/Express-000000?logo=express&logoColor=white
+[Node.js]: https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white
+[PostgreSQL]: https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white
+
 

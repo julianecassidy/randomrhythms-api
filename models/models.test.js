@@ -329,11 +329,13 @@ describe("formatConcertData", function () {
 
 
 describe("getConcertDetails", function () {
+    const testConcertIdSource = "jambase";
+
     test("returns a concert", async function () {
-        const testConcertId = "jambase:123";
+        const testConcertId = "123";
 
         fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
+            `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
             status: 200,
             body: GET_CONCERT_API_RESP
         });
@@ -367,8 +369,8 @@ describe("getConcertDetails", function () {
         const invalidConcertId = "not-a-concert";
 
         fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
-            status: 400,
+            `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
+                status: 400,
             body: {
                 "success": false,
                 "errors": [
@@ -389,7 +391,8 @@ describe("getConcertDetails", function () {
     });
 
     test("throw 400 if API request fails", async function () {
-        fetchMock.get(`${JAMBASE_BASE_URL}events/id/undefined?apikey=${JAMBASE_API_KEY}`, {
+        fetchMock.get(
+        `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:undefined?apikey=${JAMBASE_API_KEY}`, {
             status: 400,
             body: {
                 "success": false,

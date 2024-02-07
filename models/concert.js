@@ -97,7 +97,8 @@ class Concert {
       return concert;
    }
 
-   /** Takes concert id string like "jambase:123"
+   /** Takes concert id string like "123" and an id identifier which defaults to
+    * "jambase".
     * Returns: {
          jambase_id,
          headliner: {
@@ -114,16 +115,17 @@ class Concert {
          cost,
          date_time,
          door_time,
-         age limit,
          ticket_url,
          event_status
        }
     * Throws 404 if concert is not found.
     * Throws 400 if API request fails.
     */
-   static async getConcertDetails(id) {
+   static async getConcertDetails(id, idSource = "jambase") {
       const params = new URLSearchParams({apikey: JAMBASE_API_KEY});
-      const resp = await fetch(`${JAMBASE_BASE_URL}events/id/${id}?${params}`);
+      const resp = await fetch(
+         `${JAMBASE_BASE_URL}events/id/${idSource}:${id}?${params}`
+      );
       const concertData = await resp.json();
 
       if (concertData.success === true) {

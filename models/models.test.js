@@ -34,7 +34,10 @@ beforeEach(async function () {
         return await bcrypt.hash(password, 1);
     }
 
-    const testUserData = ["Test", "test@test.com", await _hashedPwd("password")];
+    const testName = "Test";
+    const testEmail = "test@test.com";
+    const testPassword = "password";
+    const testUserData = [testName, testEmail, await _hashedPwd(testPassword)];
 
     const result = await db.query(
         `INSERT INTO users (name, email, password)
@@ -124,7 +127,7 @@ describe("register", function () {
 
 describe("authenticate", function () {
     test("works with correct credentials", async function () {
-        const user = await User.authenticate("test@test.com", "password");
+        const user = await User.authenticate(testEmail, testPassword);
         expect(user).toEqual({
             name: "Test",
             email: "test@test.com",
@@ -134,7 +137,7 @@ describe("authenticate", function () {
 
     test("throws 401 if no such user", async function () {
         try {
-            await User.authenticate("not-a-user", "password");
+            await User.authenticate("not-a-user", testPassword);
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -143,7 +146,7 @@ describe("authenticate", function () {
 
     test("throws 401 if wrong password", async function () {
         try {
-            await User.authenticate("test@test.com", "wrong");
+            await User.authenticate(testEmail, "wrong");
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof UnauthorizedError).toBeTruthy();

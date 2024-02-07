@@ -1,11 +1,13 @@
 "use strict";
 
 const fetchMock = require("fetch-mock");
+const jwt = require("jsonwebtoken");
 
-const { GOOGLE_API_KEY } = require("../config");
+const { GOOGLE_API_KEY, SECRET_KEY } = require("../config");
 
 const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
 const { validateDates } = require("./validators");
+const { createToken } = require("./token.js");
 const { BadRequestError } = require("./expressError"); 
  
 
@@ -133,3 +135,16 @@ describe("checks valid dates", function () {
         expect(validateDates("2024-09-01", "2024-01-01")).toEqual(false);
     });
 }) 
+
+describe("createToken", function () {
+    test("works", function () {
+      const token = createToken({ id: "123", email: "test@test.com", name: "Test" });
+      const payload = jwt.verify(token, SECRET_KEY);
+      expect(payload).toEqual({
+        iat: expect.any(Number),
+        id: "123",
+        email: "test@test.com",
+        name: "Test",
+      });
+    });
+})

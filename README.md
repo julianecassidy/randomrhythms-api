@@ -66,7 +66,7 @@ Through this project, I've enjoyed learning more about:
 - Building RESTful APIs
 - Google Maps API and geocoding
 - Web scraping ticketing websites for pricing data (without getting my IP banned for being a bot)
-- Test driven development
+- Test driven development and mocking
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

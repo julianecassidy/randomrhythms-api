@@ -73,7 +73,7 @@ describe("register", function () {
 
     test("can register", async function () {
         const user = await User.register({
-            ...newUser, code: "test_code"
+            ...newUser, signupCode: "test_code"
         });
 
         expect(user).toEqual({
@@ -88,6 +88,7 @@ describe("register", function () {
             const user = await User.register({
                 password: "password",
                 first_name: "TestF",
+                signupCode: "test_code",
             });
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
@@ -98,11 +99,11 @@ describe("register", function () {
     test("throw 400 for bad sign up code", async function () {
         try {
             const user = await User.register({
-                ...newUser, code: "wrong"
+                ...newUser, signupCode: "wrong"
             });
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
-            expect(err instanceof BadRequestError).toBeTruthy();
+            expect(err instanceof UnauthorizedError).toBeTruthy();
         }
     });
 
@@ -112,6 +113,7 @@ describe("register", function () {
                 password: "password",
                 name: "TestF",
                 email: "test@test.com",
+                signupCode: "test_code",
             });
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
@@ -456,36 +458,8 @@ describe("getRandomConcertDetails", function () {
         });
     });
 
-    test("returns a concert without price filter", async function () {
-        const params = new URLSearchParams({
-            eventDateFrom: "2024-01-01",
-            eventDateTo: "2024-01-02",
-            geoLatitude: 39.644843,
-            geoLongitude: -104.968091,
-            geoRadiusAmount: 10,
-            geoRadiusUnits: "mi",
-            apikey: JAMBASE_API_KEY,
-        });
-
-        fetchMock.get(`${JAMBASE_BASE_URL}events?${params}`, {
-            status: 200,
-            body: GET_CONCERTS_API_RESP,
-        });
-
-        const spySampleLodash = jest.spyOn(_, 'sample');
-
-        const resp = await Concert.getRandomConcertDetails({
-            dateFrom: "2024-01-01",
-            dateTo: "2024-01-02",
-            lat: 39.644843,
-            lng: -104.968091,
-            geoRadius: 10,
-        });
-
-        expect(spySampleLodash).toHaveBeenCalledWith(GET_CONCERTS_API_RESP);
-    });
-
     test("returns empty object for no matches", async function () {
+
         const params = new URLSearchParams({
             eventDateFrom: "2024-01-01",
             eventDateTo: "2024-01-02",
@@ -511,6 +485,26 @@ describe("getRandomConcertDetails", function () {
         });
 
         expect(resp).toEqual([]);
+    });
+
+    // This test is last because it mocks a method the others test use unmocked.
+    test("returns a concert without price filter", async function () {
+        // Normally getConcerts returns formatted concerts. For ease of testing,
+        // mocking to return raw data.
+        Concert.getConcerts = jest.fn();
+        Concert.getConcerts.mockReturnValue(GET_CONCERTS_API_RESP);
+
+        const spySampleLodash = jest.spyOn(_, 'sample');
+
+        const resp = await Concert.getRandomConcertDetails({
+            dateFrom: "2024-01-01",
+            dateTo: "2024-01-02",
+            lat: 39.644843,
+            lng: -104.968091,
+            geoRadius: 10,
+        });
+
+        expect(spySampleLodash).toHaveBeenCalledWith(GET_CONCERTS_API_RESP);
     });
 });
 

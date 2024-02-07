@@ -12,14 +12,13 @@ class User {
 
     /** Register user with email, name, password, and code. 
      * Returns { id, email, name, code} 
-     * Throws BadRequestError for missing data, duplicate email, or invalid
-     * sign up code.
+     * Throws BadRequestError for missing data oa duplicate email.
+     * Throws UnauthorizedError for invalid sign up code.
      */
-    static async register({ email, name, password, code }) {
-        
+    static async register({ email, name, password, signupCode }) {
         // check valid sign up code
-        if (!this.validateSignUpCode(code)) {
-            throw new BadRequestError("Invalid sign up code!");
+        if (!this.validateSignUpCode(signupCode)) {
+            throw new UnauthorizedError("Invalid sign up code!");
         }
 
         // check unique email

@@ -13,7 +13,8 @@ const DEFAULT_GEO_RADIUS_UNITS = "mi";
 class Concert {
 
    /** Fetch concerts from API.
-    * Takes dateFrom, dateTo, lat, lng, geoRadius.
+    * Takes dateFrom, dateTo, lat, lng, geoRadius. dateFrom and dateTo must be 
+    * dates in the future within the next year.
     * Returns [
     * { jambaseId,
         headliner: {
@@ -138,7 +139,8 @@ class Concert {
    }
 
    /** Takes dateFrom, dateTo, latitude, longitude, geoRadius, price. geoRadius
-    * and price are optional. 
+    * and price are optional. dateFrom and dateTo must be dates in the future 
+    * within the next year.
     * Returns one concert that matches filters:
     * {
          jambaseId,

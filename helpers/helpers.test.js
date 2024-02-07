@@ -120,21 +120,25 @@ describe("convertZipCodeToCoords", function () {
 });
 
 
-describe("checks valid dates", function () {
+// NOTE: dates in this test will need to be updated after 2025-12-01
+describe("checks from date before to date", function () {
     test ("true for valid dates", function () {
-        expect(validateDates("2024-01-01", "2024-01-02")).toEqual(true);
-        expect(validateDates("2024-01-01", "2024-09-02")).toEqual(true);
-        expect(validateDates("2024-01-01", "2025-01-02")).toEqual(true);
-        expect(validateDates("2024-01-01", "2024-01-01")).toEqual(true);
+        expect(validateDates("2025-01-01", "2025-01-02")).toEqual(true);
+        expect(validateDates("2024-09-01", "2025-01-31")).toEqual(true);
+        expect(validateDates("2025-01-01", "2025-01-01")).toEqual(true);
     });
 
     test ("false for invalid dates", function () {
-        expect(validateDates("2024-02-01", "2024-01-02")).toEqual(false);
-        expect(validateDates("2024-01-02", "2024-01-01")).toEqual(false);
-        expect(validateDates("2025-01-01", "2024-01-02")).toEqual(false);
-        expect(validateDates("2024-09-01", "2024-01-01")).toEqual(false);
+        expect(validateDates("2024-12-01", "2024-11-02")).toEqual(false);
+        expect(validateDates("2024-12-02", "2024-12-01")).toEqual(false);
+        expect(validateDates("2025-01-01", "2024-12-02")).toEqual(false);
+        expect(validateDates("2024-01-01", "2024-12-01")).toEqual(false);
+        expect(validateDates("2025-12-01", "2025-12-04")).toEqual(false);
+        expect(validateDates("2024-12-01", "2025-12-01")).toEqual(false);
+
     });
-}) 
+});
+
 
 describe("createToken", function () {
     test("works", function () {
@@ -147,4 +151,4 @@ describe("createToken", function () {
         name: "Test",
       });
     });
-})
+});

@@ -2,7 +2,10 @@
 
 const jwt = require("jsonwebtoken");
 
+const { authenticateJWT, ensureLoggedIn } = require("./middleware");
+
 const { SECRET_KEY } = require("../config");
+const { UnauthorizedError } = require("../helpers/expressError");
 const testJwt = jwt.sign({ id: 1, name: "Test", email: "test@test.com" }, SECRET_KEY);
 const badJwt = jwt.sign({ id: 1, name: "Test", email: "test@test.com" }, "wrong");
 
@@ -53,6 +56,12 @@ describe("ensureLoggedIn", function () {
   test("throws 401 if no login", function () {
     const req = {};
     const res = { locals: {} };
-    expect(() => ensureLoggedIn(req, res, next)).toThrowError();
+    expect(() => ensureLoggedIn(req, res, next)).toThrow(UnauthorizedError);
+  });
+
+  test("throws 401 if no valid login", function () {
+    const req = {};
+    const res = { locals: { user: { } } };
+    expect(() => ensureLoggedIn(req, res, next)).toThrow(UnauthorizedError);
   });
 });

@@ -19,7 +19,7 @@
       },
       "signupCode": {
         "type": "string",
-        "minLength": 10
+        "minLength": 5
       }
     },
     "additionalProperties": false,

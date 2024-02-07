@@ -9,7 +9,8 @@ app.use(express.urlencoded());                     // process trad form data
 const authRoutes = require('./routes/auth');
 const concertRoutes = require('./routes/concerts');
 
-app.use("/concerts", concertRoutes)
+app.use("/auth", authRoutes);
+app.use("/concerts", concertRoutes);
 
 app.use(function (req, res) {                      // handle site-wide 404s
   throw new NotFoundError();

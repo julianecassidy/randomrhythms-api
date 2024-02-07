@@ -185,45 +185,45 @@ describe("getConcerts", function () {
     });
 
         expect(resp).toEqual([{
-            jambase_id: "jambase:11070750",
+            jambaseId: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
-                band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                bandImageUrl: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
                 genres: ["folk", "indie", "pop", "rock"]
             },
             openers: ["Cody Fry"],
             venue: {
                 name: "Boettcher Concert Hall",
-                venue_image_url: "",
+                venueImageUrl: "",
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202"
             },
             cost: "",
-            date_time: "2024-02-01T19:30:00",
-            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
-            event_status: "scheduled"
+            dateTime: "2024-02-01T19:30:00",
+            ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
+            eventStatus: "scheduled"
         }, {
-            jambase_id: "jambase:11297801",
+            jambaseId: "jambase:11297801",
             headliner: {
                 name: "Silent Planet",
-                band_image_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
+                bandImageUrl: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
                 genres: ["metal", "punk"]
             },
             openers: ["Thornhill", "Aviana", "Johnny Booth"],
             venue: {
                 name: "Summit Music Hall",
-                venue_image_url: "",
+                venueImageUrl: "",
                 streetAddress: "1902 Blake St",
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202"
             },
             cost: "22.00",
-            date_time: "2024-02-01T18:00:00",
-            ticket_url: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
-            event_status: "scheduled"
+            dateTime: "2024-02-01T18:00:00",
+            ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
+            eventStatus: "scheduled"
         }]);
     });
 
@@ -304,25 +304,25 @@ describe("formatConcertData", function () {
         const response = Concert.formatConcertData(rawConcertData);
 
         expect(response).toEqual({
-            jambase_id: "jambase:11070750",
+            jambaseId: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
-                band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                bandImageUrl: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
                 genres: ["folk", "indie", "pop", "rock"]
             },
             openers: ["Cody Fry"],
             venue: {
                 name: "Boettcher Concert Hall",
-                venue_image_url: "",
+                venueImageUrl: "",
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202"
             },
             cost: "",
-            date_time: "2024-02-01T19:30:00",
-            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
-            event_status: "scheduled"
+            dateTime: "2024-02-01T19:30:00",
+            ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
+            eventStatus: "scheduled"
         });
     })
 })
@@ -341,25 +341,25 @@ describe("getConcertDetails", function () {
         const resp = await Concert.getConcertDetails(testConcertId);
 
         expect(resp).toEqual({
-            jambase_id: "jambase:11070750",
+            jambaseId: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
-                band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                bandImageUrl: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
                 genres: ["folk", "indie", "pop", "rock"]
             },
             openers: ["Cody Fry"],
             venue: {
                 name: "Boettcher Concert Hall",
-                venue_image_url: "",
+                venueImageUrl: "",
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202"
             },
             cost: "",
-            date_time: "2024-02-01T19:30:00",
-            ticket_url: "https://coloradosymphony.org/?utm_source=jambase",
-            event_status: "scheduled"
+            dateTime: "2024-02-01T19:30:00",
+            ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
+            eventStatus: "scheduled"
         });
     });
 
@@ -439,25 +439,25 @@ describe("getRandomConcertDetails", function () {
         });
 
         expect(resp).toEqual({
-            jambase_id: "jambase:11297801",
+            jambaseId: "jambase:11297801",
             headliner: {
                 name: "Silent Planet",
-                band_image_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
+                bandImageUrl: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
                 genres: ["metal", "punk"]
             },
             openers: ["Thornhill", "Aviana", "Johnny Booth"],
             venue: {
                 name: "Summit Music Hall",
-                venue_image_url: "",
+                venueImageUrl: "",
                 streetAddress: "1902 Blake St",
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202"
             },
             cost: "22.00",
-            date_time: "2024-02-01T18:00:00",
-            ticket_url: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
-            event_status: "scheduled"
+            dateTime: "2024-02-01T18:00:00",
+            ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
+            eventStatus: "scheduled"
         });
     });
 

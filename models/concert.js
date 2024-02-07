@@ -15,22 +15,22 @@ class Concert {
    /** Fetch concerts from API.
     * Takes dateFrom, dateTo, lat, lng, geoRadius.
     * Returns [
-    * { jambase_id,
+    * { jambaseId,
         headliner: {
          name,
-         band_image_url
+         bandImageUrl
          genres
         },
         openers: [name]
         venue: {
          name,
-         venue_image_url,
+         venueImageUrl,
          address
         },
         cost,
-        date_time,
-        ticket_url,
-        event_status
+        dateTime,
+        ticketUrl,
+        eventStatus
        }, ...]
     * Throws a 400 if API call fails on bad data or other problem.
     */
@@ -73,25 +73,25 @@ class Concert {
       const venue = concertData.location;
 
       const concert = {
-         jambase_id: concertData.identifier,
+         jambaseId: concertData.identifier,
          headliner: {
             name: headliner.name,
-            band_image_url: headliner.image,
+            bandImageUrl: headliner.image,
             genres: headliner.genre,
          },
          openers: openers.map(o => o.name),
          venue: {
             name: venue.name,
-            venue_image_url: venue.image,
+            venueImageUrl: venue.image,
             streetAddress: venue.address.streetAddress,
             city: venue.address.addressLocality,
             state: venue.address.addressRegion.alternateName,
             zipCode: venue.address.postalCode,
          },
          cost: concertData.offers[0].priceSpecification.price || "",
-         date_time: concertData.startDate,
-         ticket_url: concertData.offers[0].url,
-         event_status: concertData.eventStatus,
+         dateTime: concertData.startDate,
+         ticketUrl: concertData.offers[0].url,
+         eventStatus: concertData.eventStatus,
       };
 
       return concert;
@@ -100,7 +100,7 @@ class Concert {
    /** Takes concert id string like "123" and an id identifier which defaults to
     * "jambase".
     * Returns: {
-         jambase_id,
+         jambaseId,
          headliner: {
             name,
             band_image,_url
@@ -109,14 +109,14 @@ class Concert {
          openers: [{name, genres}]
          venue: {
             name,
-            venue_image_url,
+            venueImageUrl,
             address
          },
          cost,
-         date_time,
+         dateTime,
          door_time,
-         ticket_url,
-         event_status
+         ticketUrl,
+         eventStatus
        }
     * Throws 404 if concert is not found.
     * Throws 400 if API request fails.
@@ -141,7 +141,7 @@ class Concert {
     * and price are optional. 
     * Returns one concert that matches filters:
     * {
-         jambase_id,
+         jambaseId,
          headliner: {
             name,
             band_image,_url
@@ -150,15 +150,15 @@ class Concert {
          openers: [{name, genres}]
          venue: {
             name,
-            venue_image_url,
+            venueImageUrl,
             address
          },
          cost,
-         date_time,
+         dateTime,
          door_time,
          age limit,
-         ticket_url,
-         event_status
+         ticketUrl,
+         eventStatus
        }
     * If no concerts match filters, returns {}.
     * Throws 400 if API requet fails on bad data or other problem.

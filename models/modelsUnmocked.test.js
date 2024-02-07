@@ -70,25 +70,25 @@ describe("getConcerts", function () {
         });
 
         expect(resp).toEqual(expect.arrayContaining([{
-                jambase_id: expect.any(String),
+                jambaseId: expect.any(String),
                 headliner: {
                     name: expect.any(String),
-                    band_image_url: expect.any(String),
+                    bandImageUrl: expect.any(String),
                     genres: expect.any(Array)
                 },
                 openers: expect.any(Array),
                 venue: {
                     name: expect.any(String),
-                    venue_image_url: expect.any(String),
+                    venueImageUrl: expect.any(String),
                     streetAddress: expect.any(String),
                     city: expect.any(String),
                     state: "CO",
                     zipCode: expect.any(String)
                 },
                 cost: expect.any(String),
-                date_time: expect.any(String),
-                ticket_url: expect.any(String),
-                event_status: expect.any(String)
+                dateTime: expect.any(String),
+                ticketUrl: expect.any(String),
+                eventStatus: expect.any(String)
         }]));
     });
 
@@ -134,7 +134,7 @@ describe("getConcerts", function () {
 //     //     const resp = await Concert.getConcertDetails("11070750");
 
 //     //     expect(resp).toEqual({
-//     //         jambase_id: "jambase:11070750",
+//     //         jambaseId: "jambase:11070750",
 //     //         headliner: {
 //     //             name: "Ben Rector",
 //     //             band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
@@ -143,7 +143,7 @@ describe("getConcerts", function () {
 //     //         openers: ["Cody Fry"],
 //     //         venue: {
 //     //             name: "Boettcher Concert Hall",
-//     //             venue_image_url: "",
+//     //             venueImageUrl: "",
 //     //             streetAddress: "1400 Curtis Street",
 //     //             city: "Denver",
 //     //             state: "CO",
@@ -151,10 +151,10 @@ describe("getConcerts", function () {
 //     //         },
 //     //         // NOTE: there are no available prices once a concert has passsed
 //     //         cost: undefined, 
-//     //         date_time: "2024-02-01T19:30:00",
+//     //         dateTime: "2024-02-01T19:30:00",
 //     //         // NOTE: there are no available ticket links once a concert has passed
-//     //         ticket_url: undefined,
-//     //         event_status: "scheduled"
+//     //         ticketUrl: undefined,
+//     //         eventStatus: "scheduled"
 //     //     });
 //     // });
 

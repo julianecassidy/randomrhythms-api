@@ -32,10 +32,7 @@ beforeEach(async function () {
         return await bcrypt.hash(password, 1);
     }
 
-    const testName = "Test";
-    const testEmail = "test@test.com";
-    const testPassword = "password";
-    const testUserData = [testName, testEmail, await _hashedPwd(testPassword)];
+    const testUserData = ["Test", "test@test.com", await _hashedPwd("password")];
 
     const result = await db.query(
         `INSERT INTO users (name, email, password)

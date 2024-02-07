@@ -45,7 +45,7 @@ class User {
 
             return user;
         } catch (err) {
-            throw new BadRequestError();
+            throw new BadRequestError("Unable to add user.");
         }
     }
 

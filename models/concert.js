@@ -8,6 +8,7 @@ const { BadRequestError, NotFoundError } = require("../helpers/expressError");
 const JAMBASE_BASE_URL = "https://www.jambase.com/jb-api/v1/"
 const DEFAULT_GEO_RADIUS = 50;
 const DEFAULT_GEO_RADIUS_UNITS = "mi";
+const DEFAULT_EVENT_SOURCE = "jambase";
 
 /** Concerts. */
 class Concert {
@@ -31,7 +32,8 @@ class Concert {
         cost,
         dateTime,
         ticketUrl,
-        eventStatus
+        eventStatus,
+        eventSource
        }, ...]
     * Throws a 400 if API call fails on bad data or other problem.
     */
@@ -67,7 +69,7 @@ class Concert {
    }
 
    /** Parses an object of raw concert data from Jambase API and returns needed 
-    * fields. */
+    * fields. This is specific to concert data retreived from Jambase. */
    static formatConcertData(concertData) {
       const headliner = concertData.performer[0];
       const openers = concertData.performer.slice(1);
@@ -93,6 +95,7 @@ class Concert {
          dateTime: concertData.startDate,
          ticketUrl: concertData.offers[0].url,
          eventStatus: concertData.eventStatus,
+         eventSource: DEFAULT_EVENT_SOURCE,
       };
 
       return concert;
@@ -117,12 +120,13 @@ class Concert {
          dateTime,
          door_time,
          ticketUrl,
-         eventStatus
+         eventStatus,
+        eventSource
        }
     * Throws 404 if concert is not found.
     * Throws 400 if API request fails.
     */
-   static async getConcertDetails(id, idSource = "jambase") {
+   static async getConcertDetails(id, idSource = DEFAULT_EVENT_SOURCE) {
       const params = new URLSearchParams({apikey: JAMBASE_API_KEY});
       const resp = await fetch(
          `${JAMBASE_BASE_URL}events/id/${idSource}:${id}?${params}`
@@ -160,7 +164,8 @@ class Concert {
          door_time,
          age limit,
          ticketUrl,
-         eventStatus
+         eventStatus,
+        eventSource
        }
     * If no concerts match filters, returns {}.
     * Throws 400 if API requet fails on bad data or other problem.

@@ -200,7 +200,8 @@ describe("getConcerts", function () {
             cost: "",
             dateTime: "2024-02-01T19:30:00",
             ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
-            eventStatus: "scheduled"
+            eventStatus: "scheduled",
+            eventSource: "jambase"
         }, {
             jambaseId: "jambase:11297801",
             headliner: {
@@ -220,7 +221,8 @@ describe("getConcerts", function () {
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",
             ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
-            eventStatus: "scheduled"
+            eventStatus: "scheduled",
+            eventSource: "jambase"
         }]);
     });
 
@@ -319,7 +321,8 @@ describe("formatConcertData", function () {
             cost: "",
             dateTime: "2024-02-01T19:30:00",
             ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
-            eventStatus: "scheduled"
+            eventStatus: "scheduled",
+            eventSource: "jambase"
         });
     })
 })
@@ -358,7 +361,8 @@ describe("getConcertDetails", function () {
             cost: "",
             dateTime: "2024-02-01T19:30:00",
             ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
-            eventStatus: "scheduled"
+            eventStatus: "scheduled",
+            eventSource: "jambase"
         });
     });
 
@@ -457,7 +461,8 @@ describe("getRandomConcertDetails", function () {
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",
             ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
-            eventStatus: "scheduled"
+            eventStatus: "scheduled",
+            eventSource: "jambase"
         });
     });
 

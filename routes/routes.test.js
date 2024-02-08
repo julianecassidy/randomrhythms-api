@@ -11,15 +11,18 @@ const fetchMock = require("fetch-mock");
 const _ = require("lodash");
 
 const { User } = require("../models/user");
-const { JAMBASE_API_KEY } = require("../config");
+const { JAMBASE_API_KEY, GOOGLE_API_KEY } = require("../config");
 const { JAMBASE_BASE_URL } = require("../models/concert");
 const { GOOGLE_BASE_URL } = require("../helpers/zipToCoords");
-const { createToken } = require("../helpers/token");
-const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
+const {
+    commonBeforeAll,
+    testToken,
+    GET_CONCERTS_API_RESP,
+    GET_CONCERT_API_RESP
+} = require("./_testCommon");
+const { captureRejectionSymbol } = require("supertest/lib/test");
 
-beforeAll(async function () {
-    await db.query("DELETE FROM users");
-})
+beforeAll(commonBeforeAll);
 
 beforeEach(async function () {
 
@@ -27,21 +30,6 @@ beforeEach(async function () {
     jest.clearAllMocks();
 
     await db.query("BEGIN");
-
-    await User.register({
-        name: "Test",
-        email: "test@test.com",
-        password: "password",
-        signupCode: "test_code",
-    });
-
-    const userQuery = await db.query(
-        `SELECT id, name, email
-        FROM users`
-    );
-
-    const user = userQuery.rows[0];
-    const token = createToken({ id: user.id, name: user.name, email: user.email });
 });
 
 afterEach(async function () {
@@ -266,196 +254,220 @@ describe("POST /auth/login", function () {
 /************************************************************* CONCERT ROUTES */
 // MOCKED VERSIONS. RUN WITHOUT RESTRAINT.
 
-// describe("GET /concerts", function () {
-//     const params = new URLSearchParams({
-//         apikey: JAMBASE_API_KEY,
-//         eventDateFrom: "2024-01-01",
-//         eventDateTo: "2024-01-02",
-//         geoLatitude: 39.644843,
-//         geoLongitude: -104.968091,
-//         geoRadiusAmount: 50,
-//         geoRadiusUnits: "mi"
-//     });
+describe("GET /concerts", function () {
+    const validConcertQuery = {
+        dateFrom: "2024-01-01",
+        dateTo: "2024-01-02",
+        zipCode: 80113
+    };
 
-//     fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
-//         status: 200,
-//         body: { GET_CONCERTS_API_RESP },
-//     })
+    test("should return a list of concerts", async function () {
+        const zipCodeParams = new URLSearchParams({
+            components: `postal_code:80113|country:US`,
+            key: GOOGLE_API_KEY,
+        });
 
-//     const validConcertQuery = { 
-//         dateFrom: "2024-01-01", 
-//         dateTo: "2024-01-02", 
-//         zip: 80113 
-//     };
+        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+            status: 200,
+            body: {
+                "results": [{
+                    "geometry": {
+                        "location": {
+                            "lat": 39.644843,
+                            "lng": -104.968091
+                        },
+                    },
+                }],
+                "status": "OK"
+              }
+            });
 
-//     test("should return a list of concerts", async function () {
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query(validConcertQuery)
-//             .set("authorization", `Bearer ${token}`);
+        const concertParams = new URLSearchParams({
+            eventDateFrom: "2024-01-01",
+            eventDateTo: "2024-01-02",
+            geoLatitude: 39.644843,
+            geoLongitude: -104.968091,
+            geoRadiusAmount: 50,
+            geoRadiusUnits: "mi",
+            apikey: JAMBASE_API_KEY,
+        });
 
-//         expect(response.body).toEqual({
-//             concerts: [{
-//                 jambaseId: "jambase:11070750",
-//                 headliner: {
-//                     name: "Ben Rector",
-//                     band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
-//                     genres: ["folk", "indie", "pop", "rock" ]
-//                 },
-//                 openers: ["Cody Fry"],
-//                 venue: {
-//                     name: "Boettcher Concert Hall",
-//                     venueImageUrl: "",
-//                     streetAddress: "1400 Curtis Street",
-//                     city: "Denver",
-//                     state: "CO",
-//                     zipCode: "80202"
-//                 },
-//                 cost: "",
-//                 dateTime: "2024-02-01T19:30:00",
-//                 ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
-//                 eventStatus: "scheduled"
-//             }, {
-//                 jambaseId: "jambase:11297801",
-//                 headliner: {
-//                     name: "Silent Planet",
-//                     band_image,_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg", 
-//                     genres: ["metal", "punk"]
-//                 },
-//                 openers: ["Thornhill", "Aviana", "Johnny Booth"],
-//                 venue: {
-//                     name: "Summit Music Hall",
-//                     venueImageUrl: "",
-//                     streetAddress: "1902 Blake St",
-//                     city: "Denver",
-//                     state: "CO",
-//                     zipCode: "80202"
-//                 },
-//                 cost: "22.00",
-//                 dateTime: "2024-02-01T18:00:00",
-//                 ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
-//                 eventStatus: "scheduled"
-//             }]
-//         });
-//     });
+            console.log("test url", `${JAMBASE_BASE_URL}events?${concertParams}`)
 
-//     test("throws 401 for invalid token", async function () {
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query(validConcertQuery)
-//             .set("authorization", `Bearer wrong`);
+            fetchMock.get(`${JAMBASE_BASE_URL}/events?${concertParams}`, {
+                status: 200,
+                body: { GET_CONCERTS_API_RESP },
+            });
 
-//         expect(response.statusCode).toEqual(401)
-//     });
+            const response = await request(app)
+                .get("/concerts/")
+                .query(validConcertQuery)
+                .set("authorization", `Bearer ${testToken}`);
 
-//     test("throws 400 for invalid dates in the past", async function () {
-//         const params = new URLSearchParams({
-//             apikey: JAMBASE_API_KEY,
-//             eventDateFrom: "2023-01-01",
-//             eventDateTo: "2023-01-02",
-//             geoLatitude: 39.644843,
-//             geoLongitude: -104.968091,
-//             geoRadiusAmount: 50,
-//             geoRadiusUnits: "mi"
-//         });
+            expect(response.body).toEqual({
+                concerts: [{
+                    jambaseId: "jambase:11070750",
+                    headliner: {
+                        name: "Ben Rector",
+                        band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                        genres: ["folk", "indie", "pop", "rock"]
+                    },
+                    openers: ["Cody Fry"],
+                    venue: {
+                        name: "Boettcher Concert Hall",
+                        venueImageUrl: "",
+                        streetAddress: "1400 Curtis Street",
+                        city: "Denver",
+                        state: "CO",
+                        zipCode: "80202"
+                    },
+                    cost: "",
+                    dateTime: "2024-02-01T19:30:00",
+                    ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
+                    eventStatus: "scheduled",
+                    eventSource: "jambase"
+                }, {
+                    jambaseId: "jambase:11297801",
+                    headliner: {
+                        name: "Silent Planet",
+                        band_image_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
+                        genres: ["metal", "punk"]
+                    },
+                    openers: ["Thornhill", "Aviana", "Johnny Booth"],
+                    venue: {
+                        name: "Summit Music Hall",
+                        venueImageUrl: "",
+                        streetAddress: "1902 Blake St",
+                        city: "Denver",
+                        state: "CO",
+                        zipCode: "80202"
+                    },
+                    cost: "22.00",
+                    dateTime: "2024-02-01T18:00:00",
+                    ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
+                    eventStatus: "scheduled",
+                    eventSource: "jambase"
+                }]
+            });
+    });
 
-//         fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
-//             status: 400,
-//             body: {
-//                 "success": false,
-//                 "errors": [
-//                   {
-//                     "code": "invalid_param",
-//                     "message": "The `eventDateFrom` must be on or after 2024-01-31."
-//                   }
-//                 ]},
-//         });
+    test("throws 401 for invalid token", async function () {
+        const response = await request(app)
+            .get("/concerts/")
+            .query(validConcertQuery)
+            .set("authorization", `Bearer wrong`);
 
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query({ ...validConcertQuery, dateFrom: "2023-01-01", dateTo: "2023-01-02" })
-//             .set("authorization", `Bearer ${token}`);
+        expect(response.statusCode).toEqual(401)
+    });
 
-//         expect(response.statusCode).toEqual(400);
-//     });
+    //     test("throws 400 for invalid dates in the past", async function () {
+    //         const params = new URLSearchParams({
+    //             apikey: JAMBASE_API_KEY,
+    //             eventDateFrom: "2023-01-01",
+    //             eventDateTo: "2023-01-02",
+    //             geoLatitude: 39.644843,
+    //             geoLongitude: -104.968091,
+    //             geoRadiusAmount: 50,
+    //             geoRadiusUnits: "mi"
+    //         });
 
-//     test("throws 400 for invalid dates start after finish", async function () {
-//         const params = new URLSearchParams({
-//             apikey: JAMBASE_API_KEY,
-//             eventDateFrom: "2024-02-01",
-//             eventDateTo: "2024-01-02",
-//             geoLatitude: 39.644843,
-//             geoLongitude: -104.968091,
-//             geoRadiusAmount: 50,
-//             geoRadiusUnits: "mi"
-//         });
+    //         fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+    //             status: 400,
+    //             body: {
+    //                 "success": false,
+    //                 "errors": [
+    //                   {
+    //                     "code": "invalid_param",
+    //                     "message": "The `eventDateFrom` must be on or after 2024-01-31."
+    //                   }
+    //                 ]},
+    //         });
 
-//         fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
-//             status: 200,
-//             body: {
-//                 "success": true,
-//                 "pagination": {
-//                     "page": 1,
-//                     "perPage": 40,
-//                     "totalItems": 0,
-//                     "totalPages": 1,
-//                     "nextPage": null,
-//                     "previousPage": null
-//                 },
-//                 "events": []
-//             },
-//         });
+    //         const response = await request(app)
+    //             .get("/concerts/")
+    //             .query({ ...validConcertQuery, dateFrom: "2023-01-01", dateTo: "2023-01-02" })
+    //             .set("authorization", `Bearer ${testToken}`);
 
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query({ ...validConcertQuery, dateFrom: "2024-02-01", dateTo: "2024-01-02" })
-//             .set("authorization", `Bearer ${token}`);
+    //         expect(response.statusCode).toEqual(400);
+    //     });
 
-//         expect(response.statusCode).toEqual(400);
-//     });
+    //     test("throws 400 for invalid dates start after finish", async function () {
+    //         const params = new URLSearchParams({
+    //             apikey: JAMBASE_API_KEY,
+    //             eventDateFrom: "2024-02-01",
+    //             eventDateTo: "2024-01-02",
+    //             geoLatitude: 39.644843,
+    //             geoLongitude: -104.968091,
+    //             geoRadiusAmount: 50,
+    //             geoRadiusUnits: "mi"
+    //         });
 
-//     test("throws 400 for invalid zip code", async function () {
-//         const invalidZip = "00000";
+    //         fetchMock.get(`${JAMBASE_BASE_URL}/events?${params}`, {
+    //             status: 200,
+    //             body: {
+    //                 "success": true,
+    //                 "pagination": {
+    //                     "page": 1,
+    //                     "perPage": 40,
+    //                     "totalItems": 0,
+    //                     "totalPages": 1,
+    //                     "nextPage": null,
+    //                     "previousPage": null
+    //                 },
+    //                 "events": []
+    //             },
+    //         });
 
-//         const testParams = new URLSearchParams({
-//             components: `postal_code:${invalidZip}|country:US`,
-//             key: GOOGLE_API_KEY,
-//         });
+    //         const response = await request(app)
+    //             .get("/concerts/")
+    //             .query({ ...validConcertQuery, dateFrom: "2024-02-01", dateTo: "2024-01-02" })
+    //             .set("authorization", `Bearer ${testToken}`);
 
-//         fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
-//           status: 200,
-//           body: {
-//             "results": [],
-//             "status": "ZERO_RESULTS"
-//             }
-//         });
+    //         expect(response.statusCode).toEqual(400);
+    //     });
 
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query({ ...validConcertQuery, zip: "00000" })
-//             .set("authorization", `Bearer ${token}`);
+    //     test("throws 400 for invalid zip code", async function () {
+    //         const invalidZip = "00000";
 
-//         expect(response.statusCode).toEqual(400);
-//     });
+    //         const testParams = new URLSearchParams({
+    //             components: `postal_code:${invalidZip}|country:US`,
+    //             key: GOOGLE_API_KEY,
+    //         });
 
-//     test("throws 401 for invalid token and invalid dates", async function () {
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query({ ...validConcertQuery, dateFrom: "2024-02-01", dateTo: "2024-01-02" })
-//             .set("authorization", `Bearer wrong`);
+    //         fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+    //           status: 200,
+    //           body: {
+    //             "results": [],
+    //             "status": "ZERO_RESULTS"
+    //             }
+    //         });
 
-//         expect(response.statusCode).toEqual(401);
-//     });
+    //         const response = await request(app)
+    //             .get("/concerts/")
+    //             .query({ ...validConcertQuery, zipCode: "00000" })
+    //             .set("authorization", `Bearer ${testToken}`);
 
-//     test("throws 401 for invalid token and invalid zip code", async function () {
-//         const response = await request(app)
-//             .get("/concerts/")
-//             .query({ ...validConcertQuery, zip: "00000" })
-//             .set("authorization", `Bearer wrong`);
+    //         expect(response.statusCode).toEqual(400);
+    //     });
 
-//         expect(response.statusCode).toEqual(401);
-//     });
-// })
+    //     test("throws 401 for invalid token and invalid dates", async function () {
+    //         const response = await request(app)
+    //             .get("/concerts/")
+    //             .query({ ...validConcertQuery, dateFrom: "2024-02-01", dateTo: "2024-01-02" })
+    //             .set("authorization", `Bearer wrong`);
+
+    //         expect(response.statusCode).toEqual(401);
+    //     });
+
+    //     test("throws 401 for invalid token and invalid zip code", async function () {
+    //         const response = await request(app)
+    //             .get("/concerts/")
+    //             .query({ ...validConcertQuery, zipCode: "00000" })
+    //             .set("authorization", `Bearer wrong`);
+
+    //         expect(response.statusCode).toEqual(401);
+    //     });
+})
 
 
 // describe("GET /concert/:id", function () {
@@ -470,14 +482,14 @@ describe("POST /auth/login", function () {
 //     test("should return a concert", async function () {
 //         const response = await request(app)
 //             .get(`/concerts/${testConcertId}`)
-//             .set("authorization", `Bearer ${token}`);
+//             .set("authorization", `Bearer ${testToken}`);
 
 //         expect(response.body).toEqual({
 //             concert: {
 //                 jambaseId: "jambase:11070750",
 //                 headliner: {
 //                     name: "Ben Rector",
-//                     band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
+//                     band_image_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
 //                     genres: ["folk", "indie", "pop", "rock" ]
 //                 },
 //                 openers: ["Cody Fry"],
@@ -492,7 +504,8 @@ describe("POST /auth/login", function () {
 //                 cost: "",
 //                 dateTime: "2024-02-01T19:30:00",
 //                 ticketUrl: "https://coloradosymphony.org/?utm_source=jambase",
-//                 eventStatus: "scheduled"
+//                 eventStatus: "scheduled",
+//                 eventSource: "jambase"
 //             }
 //         });
 //     });
@@ -524,7 +537,7 @@ describe("POST /auth/login", function () {
 
 //         const response = await request(app)
 //             .get("/concerts/not-a-concert")
-//             .set("authorization", `Bearer ${token}`);
+//             .set("authorization", `Bearer ${testToken}`);
 
 //             expect(response.statusCode).toEqual(404);
 //         });    
@@ -568,14 +581,14 @@ describe("POST /auth/login", function () {
 //         const response = await request(app)
 //         .get("/concerts/random")
 //         .query(validRandomQuery)
-//         .set("authorization", `Bearer ${token}`);
+//         .set("authorization", `Bearer ${testToken}`);
 
 //         expect(response.body).toEqual({
 //             randomConcert: {
 //                 jambaseId: "jambase:11297801",
 //                 headliner: {
 //                     name: "Silent Planet",
-//                     band_image,_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg", 
+//                     band_image_url: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg", 
 //                     genres: ["metal", "punk"]
 //                 },
 //                 openers: ["Thornhill", "Aviana", "Johnny Booth"],
@@ -590,7 +603,8 @@ describe("POST /auth/login", function () {
 //                 cost: "22.00",
 //                 dateTime: "2024-02-01T18:00:00",
 //                 ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
-//                 eventStatus: "scheduled"
+//                 eventStatus: "scheduled",
+//                 eventSource: "jambase"
 //             }
 //         });
 //     });
@@ -605,7 +619,7 @@ describe("POST /auth/login", function () {
 //             dateTo: "2024-01-02", 
 //             zipCode: 80113,
 //         })
-//         .set("authorization", `Bearer ${token}`);
+//         .set("authorization", `Bearer ${testToken}`);
 
 //         expect(spySampleLodash).toHaveBeenCalledWith(GET_CONCERTS_API_RESP);
 //     });
@@ -622,7 +636,7 @@ describe("POST /auth/login", function () {
 //         const response = await request(app)
 //             .get("/concerts/")
 //             .query({ ...validRandomQuery, dateFrom: "2024-02-01", dateTo: "2024-01-01"})
-//             .set("authorization", `Bearer ${token}`);
+//             .set("authorization", `Bearer ${testToken}`);
 
 //         expect(response.statusCode).toEqual(400);
 //     });
@@ -631,7 +645,7 @@ describe("POST /auth/login", function () {
 //         const response = await request(app)
 //             .get("/concerts/")
 //             .query({ price: "not a price"})
-//             .set("authorization", `Bearer ${token}`);
+//             .set("authorization", `Bearer ${testToken}`);
 
 //         expect(response.statusCode).toEqual(400);
 //     });
@@ -654,8 +668,8 @@ describe("POST /auth/login", function () {
 
 //         const response = await request(app)
 //             .get("/concerts/")
-//             .query({ ...validRandomQuery, zip: "00000" })
-//             .set("authorization", `Bearer ${token}`);
+//             .query({ ...validRandomQuery, zipCode: "00000" })
+//             .set("authorization", `Bearer ${testToken}`);
 
 //         expect(response.statusCode).toEqual(400);
 //     });
@@ -672,7 +686,7 @@ describe("POST /auth/login", function () {
 //     test("throws 401 for invalid token and bad zip code", async function () {
 //         const response = await request(app)
 //             .get("/concerts/")
-//             .query({ ...validRandomQuery, zip: "00000" })
+//             .query({ ...validRandomQuery, zipCode: "00000" })
 //             .set("authorization", `Bearer wrong`);
 
 //             expect(response.statusCode).toEqual(401);

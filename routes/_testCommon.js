@@ -1,3 +1,30 @@
+"use strict"; 
+
+const db = require("../db");
+const { User } = require("../models/user");
+const { createToken } = require("../helpers/token");
+
+let testToken;
+
+async function commonBeforeAll() {
+    await db.query("DELETE FROM users");
+
+    await User.register({
+        name: "Test",
+        email: "test@test.com",
+        password: "password",
+        signupCode: "test_code",
+    });
+
+    const userQuery = await db.query(
+        `SELECT id, name, email
+        FROM users`
+    );
+    const user = userQuery.rows[0];
+    
+    testToken = createToken({ id: user.id, name: user.name, email: user.email });
+}
+
 const GET_CONCERTS_API_RESP = {
     "success": true,
     "pagination": {
@@ -368,173 +395,178 @@ const GET_CONCERTS_API_RESP = {
 const GET_CONCERT_API_RESP = {
     "success": true,
     "event": {
-      "@type": "Concert",
-      "name": "Ben Rector at Boettcher Concert Hall",
-      "identifier": "jambase:11070750",
-      "url": "https://www.jambase.com/show/ben-rector-boettcher-concert-hall-20240201",
-      "image": "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
-      "sameAs": [],
-      "datePublished": "2023-09-25T17:34:58Z",
-      "dateModified": "2024-01-11T17:06:40Z",
-      "eventStatus": "scheduled",
-      "startDate": "2024-02-01T19:30:00",
-      "endDate": "2024-02-01",
-      "previousStartDate": "",
-      "doorTime": "",
-      "location": {
-        "@type": "Venue",
-        "name": "Boettcher Concert Hall",
-        "identifier": "jambase:338239",
-        "url": "https://www.jambase.com/venue/boettcher-concert-hall",
-        "image": "",
-        "datePublished": "2015-08-13T09:59:01Z",
-        "dateModified": "2024-01-23T07:05:16Z",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "1400 Curtis Street",
-          "addressLocality": "Denver",
-          "postalCode": "80202",
-          "addressRegion": {
-            "@type": "State",
-            "identifier": "US-CO",
-            "name": "Colorado",
-            "alternateName": "CO"
-          },
-          "addressCountry": {
-            "@type": "Country",
-            "identifier": "US",
-            "name": "United States",
-            "alternateName": "USA"
-          },
-          "x-streetAddress2": "",
-          "x-timezone": "America/Denver",
-          "x-jamBaseMetroId": 8,
-          "x-jamBaseCityId": 4227820
+        "@type": "Concert",
+        "name": "Ben Rector at Boettcher Concert Hall",
+        "identifier": "jambase:11070750",
+        "url": "https://www.jambase.com/show/ben-rector-boettcher-concert-hall-20240201",
+        "image": "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+        "sameAs": [],
+        "datePublished": "2023-09-25T17:34:58Z",
+        "dateModified": "2024-01-11T17:06:40Z",
+        "eventStatus": "scheduled",
+        "startDate": "2024-02-01T19:30:00",
+        "endDate": "2024-02-01",
+        "previousStartDate": "",
+        "doorTime": "",
+        "location": {
+            "@type": "Venue",
+            "name": "Boettcher Concert Hall",
+            "identifier": "jambase:338239",
+            "url": "https://www.jambase.com/venue/boettcher-concert-hall",
+            "image": "",
+            "datePublished": "2015-08-13T09:59:01Z",
+            "dateModified": "2024-01-23T07:05:16Z",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "1400 Curtis Street",
+                "addressLocality": "Denver",
+                "postalCode": "80202",
+                "addressRegion": {
+                    "@type": "State",
+                    "identifier": "US-CO",
+                    "name": "Colorado",
+                    "alternateName": "CO"
+                },
+                "addressCountry": {
+                    "@type": "Country",
+                    "identifier": "US",
+                    "name": "United States",
+                    "alternateName": "USA"
+                },
+                "x-streetAddress2": "",
+                "x-timezone": "America/Denver",
+                "x-jamBaseMetroId": 8,
+                "x-jamBaseCityId": 4227820
+            },
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 39.7453,
+                "longitude": -104.9972
+            }
         },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": 39.7453,
-          "longitude": -104.9972
-        }
-      },
-      "offers": [
-        {
-          "@type": "Offer",
-          "name": "Ben Rector Denver Tickets on Venue Website",
-          "identifier": "jambase:0",
-          "url": "https://coloradosymphony.org/?utm_source=jambase",
-          "datePublished": "2023-09-25T17:34:58Z",
-          "dateModified": "2024-01-11T17:06:40Z",
-          "category": "ticketingLinkPrimary",
-          "priceSpecification": {},
-          "seller": {
-            "@type": "Organization",
-            "name": "Venue Website",
-            "identifier": "ticket-provider",
-            "disambiguatingDescription": "eventTicketVendorPrimary"
-          },
-          "validFrom": "2023-09-25T17:34:58Z",
-          "x-spansDays": 1
-        },
-        {
-          "@type": "Offer",
-          "name": "Ben Rector Denver Tickets on SeatGeek",
-          "identifier": "jambase:11501072",
-          "url": "https://seatgeek.pxf.io/c/252938/1756891/20501?url=https%3A%2F%2Fseatgeek.com%2Fben-rector-tickets%2Fdenver-colorado-boettcher-concert-hall-2024-02-01-7-30-pm%2Fconcert%2F6345468%3Faid%3D13185",
-          "datePublished": "2024-01-11T17:06:39Z",
-          "dateModified": "2024-01-11T17:06:39Z",
-          "category": "ticketingLinkSecondary",
-          "priceSpecification": {},
-          "seller": {
-            "@type": "Organization",
-            "name": "SeatGeek",
-            "identifier": "seatgeek",
-            "disambiguatingDescription": "eventTicketVendorSecondary"
-          },
-          "validFrom": "2024-01-11T17:06:39Z",
-          "x-spansDays": 1
-        },
-        {
-          "@type": "Offer",
-          "name": "Ben Rector Denver Tickets on Ticketmaster Resale",
-          "identifier": "jambase:11321764",
-          "url": "https://ticketmaster.evyy.net/c/252938/271177/4272?u=https%3A%2F%2Fwww.ticketmaster.com%2Fevent%2FZ7r9jZ1A7vFbt",
-          "datePublished": "2023-11-22T16:32:46Z",
-          "dateModified": "2023-11-22T16:32:46Z",
-          "category": "ticketingLinkSecondary",
-          "priceSpecification": {},
-          "seller": {
-            "@type": "Organization",
-            "name": "Ticketmaster Resale",
-            "identifier": "ticketmaster-resale",
-            "disambiguatingDescription": "eventTicketVendorSecondary"
-          },
-          "validFrom": "2023-11-22T16:32:46Z",
-          "x-spansDays": 1
-        }
-      ],
-      "performer": [
-        {
-          "@type": "MusicGroup",
-          "name": "Ben Rector",
-          "identifier": "jambase:47625",
-          "url": "https://www.jambase.com/band/ben-rector",
-          "image": "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
-          "datePublished": "2015-06-21T17:56:56Z",
-          "dateModified": "2024-01-25T23:06:10Z",
-          "x-bandOrMusician": "band",
-          "x-numUpcomingEvents": 29,
-          "genre": [
-            "folk",
-            "indie",
-            "pop",
-            "rock"
-          ],
-          "x-performanceDate": "2024-02-01",
-          "x-performanceRank": 1,
-          "x-isHeadliner": true,
-          "x-dateIsConfirmed": true
-        },
-        {
-          "@type": "MusicGroup",
-          "name": "Cody Fry",
-          "identifier": "jambase:4416530",
-          "url": "https://www.jambase.com/band/cody-fry",
-          "image": "https://www.jambase.com/wp-content/uploads/2021/08/jambase-default-band-image-bw-1480x832.png",
-          "datePublished": "2018-06-28T19:58:44Z",
-          "dateModified": "2024-01-25T00:42:31Z",
-          "x-bandOrMusician": "band",
-          "x-numUpcomingEvents": 7,
-          "genre": [
-            "folk",
-            "indie"
-          ],
-          "x-performanceDate": "2024-02-01",
-          "x-performanceRank": 2,
-          "x-isHeadliner": false,
-          "x-dateIsConfirmed": true
-        }
-      ],
-      "eventAttendanceMode": "live",
-      "isAccessibleForFree": false,
-      "x-streamIds": [],
-      "x-headlinerInSupport": false,
-      "x-promoImage": "",
-      "x-customTitle": "",
-      "x-subtitle": ""
+        "offers": [
+            {
+                "@type": "Offer",
+                "name": "Ben Rector Denver Tickets on Venue Website",
+                "identifier": "jambase:0",
+                "url": "https://coloradosymphony.org/?utm_source=jambase",
+                "datePublished": "2023-09-25T17:34:58Z",
+                "dateModified": "2024-01-11T17:06:40Z",
+                "category": "ticketingLinkPrimary",
+                "priceSpecification": {},
+                "seller": {
+                    "@type": "Organization",
+                    "name": "Venue Website",
+                    "identifier": "ticket-provider",
+                    "disambiguatingDescription": "eventTicketVendorPrimary"
+                },
+                "validFrom": "2023-09-25T17:34:58Z",
+                "x-spansDays": 1
+            },
+            {
+                "@type": "Offer",
+                "name": "Ben Rector Denver Tickets on SeatGeek",
+                "identifier": "jambase:11501072",
+                "url": "https://seatgeek.pxf.io/c/252938/1756891/20501?url=https%3A%2F%2Fseatgeek.com%2Fben-rector-tickets%2Fdenver-colorado-boettcher-concert-hall-2024-02-01-7-30-pm%2Fconcert%2F6345468%3Faid%3D13185",
+                "datePublished": "2024-01-11T17:06:39Z",
+                "dateModified": "2024-01-11T17:06:39Z",
+                "category": "ticketingLinkSecondary",
+                "priceSpecification": {},
+                "seller": {
+                    "@type": "Organization",
+                    "name": "SeatGeek",
+                    "identifier": "seatgeek",
+                    "disambiguatingDescription": "eventTicketVendorSecondary"
+                },
+                "validFrom": "2024-01-11T17:06:39Z",
+                "x-spansDays": 1
+            },
+            {
+                "@type": "Offer",
+                "name": "Ben Rector Denver Tickets on Ticketmaster Resale",
+                "identifier": "jambase:11321764",
+                "url": "https://ticketmaster.evyy.net/c/252938/271177/4272?u=https%3A%2F%2Fwww.ticketmaster.com%2Fevent%2FZ7r9jZ1A7vFbt",
+                "datePublished": "2023-11-22T16:32:46Z",
+                "dateModified": "2023-11-22T16:32:46Z",
+                "category": "ticketingLinkSecondary",
+                "priceSpecification": {},
+                "seller": {
+                    "@type": "Organization",
+                    "name": "Ticketmaster Resale",
+                    "identifier": "ticketmaster-resale",
+                    "disambiguatingDescription": "eventTicketVendorSecondary"
+                },
+                "validFrom": "2023-11-22T16:32:46Z",
+                "x-spansDays": 1
+            }
+        ],
+        "performer": [
+            {
+                "@type": "MusicGroup",
+                "name": "Ben Rector",
+                "identifier": "jambase:47625",
+                "url": "https://www.jambase.com/band/ben-rector",
+                "image": "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
+                "datePublished": "2015-06-21T17:56:56Z",
+                "dateModified": "2024-01-25T23:06:10Z",
+                "x-bandOrMusician": "band",
+                "x-numUpcomingEvents": 29,
+                "genre": [
+                    "folk",
+                    "indie",
+                    "pop",
+                    "rock"
+                ],
+                "x-performanceDate": "2024-02-01",
+                "x-performanceRank": 1,
+                "x-isHeadliner": true,
+                "x-dateIsConfirmed": true
+            },
+            {
+                "@type": "MusicGroup",
+                "name": "Cody Fry",
+                "identifier": "jambase:4416530",
+                "url": "https://www.jambase.com/band/cody-fry",
+                "image": "https://www.jambase.com/wp-content/uploads/2021/08/jambase-default-band-image-bw-1480x832.png",
+                "datePublished": "2018-06-28T19:58:44Z",
+                "dateModified": "2024-01-25T00:42:31Z",
+                "x-bandOrMusician": "band",
+                "x-numUpcomingEvents": 7,
+                "genre": [
+                    "folk",
+                    "indie"
+                ],
+                "x-performanceDate": "2024-02-01",
+                "x-performanceRank": 2,
+                "x-isHeadliner": false,
+                "x-dateIsConfirmed": true
+            }
+        ],
+        "eventAttendanceMode": "live",
+        "isAccessibleForFree": false,
+        "x-streamIds": [],
+        "x-headlinerInSupport": false,
+        "x-promoImage": "",
+        "x-customTitle": "",
+        "x-subtitle": ""
     },
     "request": {
-      "endpoint": "https://www.jambase.com/jb-api/v1/events/id/jambase:11070750",
-      "method": "GET",
-      "params": {
-        "eventDataSource": "jambase",
-        "sourceEventId": "11070750",
-        "apikey": "123"
-      },
-      "ip": "76.131.206.234",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
+        "endpoint": "https://www.jambase.com/jb-api/v1/events/id/jambase:11070750",
+        "method": "GET",
+        "params": {
+            "eventDataSource": "jambase",
+            "sourceEventId": "11070750",
+            "apikey": "123"
+        },
+        "ip": "76.131.206.234",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
     }
-  }
+}
 
 
-module.exports = { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP };
+module.exports = { 
+    commonBeforeAll,
+    testToken, 
+    GET_CONCERTS_API_RESP, 
+    GET_CONCERT_API_RESP
+};

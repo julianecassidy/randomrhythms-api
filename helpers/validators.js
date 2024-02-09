@@ -11,6 +11,8 @@
  * 2000-03-01, 2000-03-05 -> false
  * 2025-03-01, 2024-04-01 -> false */
 function validateDates(dateFrom, dateTo) {
+
+    console.log("validateDates");
     const today = new Date();
     const yearFromToday = new Date(new Date().setFullYear(today.getFullYear() + 1))
 

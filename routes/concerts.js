@@ -12,6 +12,7 @@ const randomConcertSchema = require("../schemas/randomConcert.json");
 const { convertZipCodeToCoords } = require("../helpers/zipToCoords");
 const { ensureLoggedIn } = require("../middleware/middleware")
 const { BadRequestError } = require("../helpers/expressError");
+const { validateDates } = require("../helpers/validators");
 
 module.exports = router;
 
@@ -55,6 +56,10 @@ router.get("/", ensureLoggedIn, async function (req, res) {
     }
 
     const { dateFrom, dateTo, zipCode } = req.query;
+
+    if (!validateDates(dateFrom, dateFrom)) {
+        throw new BadRequestError("invalid dates");
+    }
 
     const { lat, lng } =  await convertZipCodeToCoords(zipCode);
     const concerts = await Concert.getConcerts({ dateFrom, dateTo, lat, lng});
@@ -144,6 +149,10 @@ router.get("/random", ensureLoggedIn, async function (req, res) {
     }
 
     const { dateFrom, dateTo, zipCode } = req.query;
+
+    if (!validateDates(dateFrom, dateFrom)) {
+        throw new BadRequestError("invalid dates");
+    }
 
     const { lat, lng } =  await convertZipCodeToCoords(zipCode);
     const concerts = await Concert.getConcerts({ dateFrom, dateTo, lat, lng});

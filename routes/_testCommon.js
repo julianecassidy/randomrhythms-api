@@ -15,14 +15,6 @@ async function commonBeforeAll() {
         password: "password",
         signupCode: "test_code",
     });
-
-    const userQuery = await db.query(
-        `SELECT id, name, email
-        FROM users`
-    );
-    const user = userQuery.rows[0];
-    
-    testToken = createToken({ id: user.id, name: user.name, email: user.email });
 }
 
 const GET_CONCERTS_API_RESP = {
@@ -566,7 +558,6 @@ const GET_CONCERT_API_RESP = {
 
 module.exports = { 
     commonBeforeAll,
-    testToken, 
     GET_CONCERTS_API_RESP, 
     GET_CONCERT_API_RESP
 };

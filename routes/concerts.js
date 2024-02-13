@@ -1,4 +1,4 @@
-"use strict"; 
+"use strict";
 
 const express = require("express");
 const router = new express.Router();
@@ -12,15 +12,15 @@ const randomConcertSchema = require("../schemas/randomConcert.json");
 const { convertZipCodeToCoords } = require("../helpers/zipToCoords");
 const { ensureLoggedIn } = require("../middleware/middleware")
 const { BadRequestError } = require("../helpers/expressError");
-const { validateDates } = require("../helpers/validators");
+const { DateValidation } = require("../helpers/validators");
 
 module.exports = router;
 
-/** GET /concerts/ : { params } => { concerts } 
- * 
+/** GET /concerts/ : { params } => { concerts }
+ *
  * params must include { dateFrom, dateTo, zipCode }
  * Must include valid bearer token.
- * 
+ *
  * Returns concerts:
  * [{ id,
         headliner: {
@@ -50,14 +50,14 @@ router.get("/", ensureLoggedIn, async function (req, res) {
         { required: true }
     );
 
-    if (!validation) {
+    if (!validation.valid) {
         const errs = validation.errors.map(e => e.stack);
         throw new BadRequestError(errs);
     }
 
     const { dateFrom, dateTo, zipCode } = req.query;
 
-    if (!validateDates(dateFrom, dateFrom)) {
+    if (!DateValidation.validateDates(dateFrom, dateFrom)) {
         throw new BadRequestError("invalid dates");
     }
 
@@ -66,10 +66,73 @@ router.get("/", ensureLoggedIn, async function (req, res) {
     return res.json({ concerts });
 })
 
-/** GET /concerts/:id : { id } => { concert } 
- *  
+/** GET /concerts/random : { searchParams } => { concerts }
+ *
+ * searchParams must include { dateFrom, dateTo, zipCode }
+ * seachParams can additionally includlike { geoRadius, price }
  * Must include valid bearer token.
- * 
+ *
+ * Returns concerts:
+ * [{ id,
+        headliner: {
+         name,
+         bandImageUrl
+         genres
+        },
+        openers: [name]
+        venue: {
+         name,
+         venueImageUrl,
+         address
+        },
+        cost,
+        dateTime,
+        ticketUrl,
+        eventStatus,
+        eventSource
+       }, ...]
+
+       Authorization required: requester must be logged in.
+*/
+router.get("/random", ensureLoggedIn, async function (req, res) {
+    const q = req.query;
+
+    if (q.geoRadius !== undefined) q.geoRadius = +q.geoRadius;
+    if (q.price !== undefined) q.price = +q.price;
+
+    const validation = jsonschema.validate(
+        q,
+        randomConcertSchema,
+        { required: true }
+    );
+
+    if (!validation.valid) {
+        const errs = validation.errors.map(e => e.stack);
+        throw new BadRequestError(errs);
+    }
+
+    const { dateFrom, dateTo, zipCode, geoRadius, price } = q;
+
+    if (!DateValidation.validateDates(dateFrom, dateFrom)) {
+        throw new BadRequestError("invalid dates");
+    }
+
+    const { lat, lng } =  await convertZipCodeToCoords(zipCode);
+    const randomConcert = await Concert.getRandomConcertDetails({
+         dateFrom,
+         dateTo,
+         lat,
+         lng,
+         geoRadius,
+         price
+    });
+    return res.json({ randomConcert });
+})
+
+/** GET /concerts/:id : { id } => { concert }
+ *
+ * Must include valid bearer token.
+ *
  * Returns concert:
  * { id,
         headliner: {
@@ -99,63 +162,14 @@ router.get("/:id", ensureLoggedIn, async function (req, res) {
         { required: true }
     );
 
-    if (!validation) {
+    if (!validation.valid) {
         const errs = validation.errors.map(e => e.stack);
         throw new BadRequestError(errs);
     }
 
-    const concert = await Concert.getConcerts(req.params.id);
+    const concert = await Concert.getConcertDetails(req.params.id);
     return res.json({ concert });
 })
 
-/** GET /concerts/random : { searchParams } => { concerts } 
- * 
- * searchParams must include { dateFrom, dateTo, zipCode }
- * seachParams can additionally includlike { geoRadius, price }
- * Must include valid bearer token.
- * 
- * Returns concerts:
- * [{ id,
-        headliner: {
-         name,
-         bandImageUrl
-         genres
-        },
-        openers: [name]
-        venue: {
-         name,
-         venueImageUrl,
-         address
-        },
-        cost,
-        dateTime,
-        ticketUrl,
-        eventStatus,
-        eventSource
-       }, ...]
 
-       Authorization required: requester must be logged in.
-*/
-router.get("/random", ensureLoggedIn, async function (req, res) {
-    const validation = jsonschema.validate(
-        req.query,
-        randomConcertSchema,
-        { required: true }
-    );
-
-    if (!validation) {
-        const errs = validation.errors.map(e => e.stack);
-        throw new BadRequestError(errs);
-    }
-
-    const { dateFrom, dateTo, zipCode } = req.query;
-
-    if (!validateDates(dateFrom, dateFrom)) {
-        throw new BadRequestError("invalid dates");
-    }
-
-    const { lat, lng } =  await convertZipCodeToCoords(zipCode);
-    const concerts = await Concert.getConcerts({ dateFrom, dateTo, lat, lng});
-    return res.json({ concerts });
-})
 

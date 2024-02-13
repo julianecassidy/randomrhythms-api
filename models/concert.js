@@ -14,7 +14,7 @@ const DEFAULT_EVENT_SOURCE = "jambase";
 class Concert {
 
    /** Fetch concerts from API.
-    * Takes dateFrom, dateTo, lat, lng, geoRadius. dateFrom and dateTo must be 
+    * Takes dateFrom, dateTo, lat, lng, geoRadius. dateFrom and dateTo must be
     * dates in the future within the next year.
     * Returns [
     * { jambaseId,
@@ -58,8 +58,6 @@ class Concert {
       const resp = await fetch(`${JAMBASE_BASE_URL}events?${params}`);
       const concertData = await resp.json();
 
-      console.log(concertData);
-
       if (concertData.success === true) {
          const concerts = concertData.events.map(c => this.formatConcertData(c));
          return concerts;
@@ -68,7 +66,7 @@ class Concert {
       }
    }
 
-   /** Parses an object of raw concert data from Jambase API and returns needed 
+   /** Parses an object of raw concert data from Jambase API and returns needed
     * fields. This is specific to concert data retreived from Jambase. */
    static formatConcertData(concertData) {
       const headliner = concertData.performer[0];
@@ -143,7 +141,7 @@ class Concert {
    }
 
    /** Takes dateFrom, dateTo, latitude, longitude, geoRadius, price. geoRadius
-    * and price are optional. dateFrom and dateTo must be dates in the future 
+    * and price are optional. dateFrom and dateTo must be dates in the future
     * within the next year.
     * Returns one concert that matches filters:
     * {
@@ -201,7 +199,7 @@ class Concert {
       if (concertsUnderPrice.length === 0) return [];
 
       return _.sample(concertsUnderPrice);
-      
+
 
    }
 }

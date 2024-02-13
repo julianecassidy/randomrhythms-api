@@ -18,17 +18,17 @@
         "minLength": 5,
         "maxLength": 5
       },
-      "distance": {
-        "type": "number",
+      "geoRadius": {
+        "type": "integer",
         "minimum": 0,
         "maximum": 500
       },
       "price": {
-        "type": "number",
+        "type": "integer",
         "minimum": 0,
         "maximum": 500
       }
     },
     "additionalProperties": false,
     "required": ["dateFrom", "dateTo", "zipCode"]
-  } 
+  }

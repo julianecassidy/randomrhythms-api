@@ -20,7 +20,7 @@ const { NotFoundError, BadRequestError } = require("../helpers/expressError");
 
 beforeAll(async function () {
     await db.query("DELETE FROM users");
-})
+});
 
 beforeEach(async function () {
 
@@ -45,13 +45,13 @@ beforeEach(async function () {
 
 afterEach(async function () {
     await db.query("ROLLBACK");
-})
+});
 
 /************************************************************** CONCERT CLASS */
 // REAL VERSION. RUNNING THESE TESTS COUNTS AGAINST OUR API LIMIT
 
 describe("getConcerts", function () {
-    
+
     // TODO: This test can only check future dates, but going far enough out for
     // the test to work but close enough that we have concert data to test is
     // proving troublesome.
@@ -59,33 +59,33 @@ describe("getConcerts", function () {
     // need to be moved forwards.
     test("returns a list of concerts data", async function () {
         const resp = await Concert.getConcerts({
-            dateFrom: "2024-03-01", 
-            dateTo: "2024-03-02", 
-            lat: 39.644843, 
+            dateFrom: "2024-03-01",
+            dateTo: "2024-03-02",
+            lat: 39.644843,
             lng: -104.968091,
             geoRadius: 5,
         });
 
         expect(resp).toEqual(expect.arrayContaining([{
-                jambaseId: expect.any(String),
-                headliner: {
-                    name: expect.any(String),
-                    bandImageUrl: expect.any(String),
-                    genres: expect.any(Array)
-                },
-                openers: expect.any(Array),
-                venue: {
-                    name: expect.any(String),
-                    venueImageUrl: expect.any(String),
-                    streetAddress: expect.any(String),
-                    city: expect.any(String),
-                    state: "CO",
-                    zipCode: expect.any(String)
-                },
-                cost: expect.any(String),
-                dateTime: expect.any(String),
-                ticketUrl: expect.any(String),
-                eventStatus: expect.any(String)
+            jambaseId: expect.any(String),
+            headliner: {
+                name: expect.any(String),
+                bandImageUrl: expect.any(String),
+                genres: expect.any(Array)
+            },
+            openers: expect.any(Array),
+            venue: {
+                name: expect.any(String),
+                venueImageUrl: expect.any(String),
+                streetAddress: expect.any(String),
+                city: expect.any(String),
+                state: "CO",
+                zipCode: expect.any(String)
+            },
+            cost: expect.any(String),
+            dateTime: expect.any(String),
+            ticketUrl: expect.any(String),
+            eventStatus: expect.any(String)
         }]));
     });
 
@@ -93,9 +93,9 @@ describe("getConcerts", function () {
     // need to be moved forwards.
     // test("returns an empty list if no matching concerts", async function () {
     //     const resp = await Concert.getConcerts({
-    //         dateFrom: "2025-01-01", 
-    //         dateTo: "2025-01-01", 
-    //         lat: 39.644843, 
+    //         dateFrom: "2025-01-01",
+    //         dateTo: "2025-01-01",
+    //         lat: 39.644843,
     //         lng: -104.968091,
     //         geoRadius: 1,
     // });
@@ -106,9 +106,9 @@ describe("getConcerts", function () {
     // test("throw 400 if API call fails", async function () {
     //     try {
     //         await Concert.getConcerts(
-    //             "2024-01-01", 
-    //             "2024-01-02", 
-    //             39.644843, 
+    //             "2024-01-01",
+    //             "2024-01-02",
+    //             39.644843,
     //             -104.968091,
     //             10
     //         );
@@ -134,7 +134,7 @@ describe("getConcerts", function () {
 //     //         jambaseId: "jambase:11070750",
 //     //         headliner: {
 //     //             name: "Ben Rector",
-//     //             band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png", 
+//     //             band_image,_url: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
 //     //             genres: ["folk", "indie", "pop", "rock" ]
 //     //         },
 //     //         openers: ["Cody Fry"],
@@ -147,7 +147,7 @@ describe("getConcerts", function () {
 //     //             zipCode: "80202"
 //     //         },
 //     //         // NOTE: there are no available prices once a concert has passsed
-//     //         cost: undefined, 
+//     //         cost: undefined,
 //     //         dateTime: "2024-02-01T19:30:00",
 //     //         // NOTE: there are no available ticket links once a concert has passed
 //     //         ticketUrl: undefined,
@@ -179,9 +179,9 @@ describe("getConcerts", function () {
 // describe("getRandomConcertDetails", function () {
 //     test("returns a concert with all filters", async function () {
 //         const resp = await Concert.getRandomConcertDetails(
-//             "2025-02-01", 
-//             "2025-02-02", 
-//             39.644843, 
+//             "2025-02-01",
+//             "2025-02-02",
+//             39.644843,
 //             -104.968091,
 //             10,
 //             30
@@ -192,13 +192,13 @@ describe("getConcerts", function () {
 
 //     test("returns a concert without price filter", async function () {
 //         const resp = await Concert.getRandomConcertDetails(
-//             "2025-02-01", 
-//             "2025-02-02", 
-//             39.644843, 
+//             "2025-02-01",
+//             "2025-02-02",
+//             39.644843,
 //             -104.968091,
 //             10,
 //             );
-            
+
 //         expect(spySampleLodash).toHaveBeenCalled();
 //     });
 
@@ -206,9 +206,9 @@ describe("getConcerts", function () {
 //     // moved forwards.
 //     test("returns empty object for no matches", async function () {
 //         const resp = await Concert.getRandomConcertDetails(
-//             "2027-01-01", 
-//             "2027-01-02", 
-//             39.644843, 
+//             "2027-01-01",
+//             "2027-01-02",
+//             39.644843,
 //             -104.968091,
 //             10,
 //             10

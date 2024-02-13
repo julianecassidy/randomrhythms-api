@@ -1,4 +1,4 @@
-"use strict"; 
+"use strict";
 
 const db = require("../db");
 const { User } = require("../models/user");
@@ -382,7 +382,7 @@ const GET_CONCERTS_API_RESP = {
             "x-subtitle": ""
         }
     ]
-}
+};
 
 const GET_CONCERT_API_RESP = {
     "success": true,
@@ -553,11 +553,11 @@ const GET_CONCERT_API_RESP = {
         "ip": "76.131.206.234",
         "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
     }
-}
+};
 
 
-module.exports = { 
+module.exports = {
     commonBeforeAll,
-    GET_CONCERTS_API_RESP, 
+    GET_CONCERTS_API_RESP,
     GET_CONCERT_API_RESP
 };

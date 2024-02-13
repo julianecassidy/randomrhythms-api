@@ -25,20 +25,20 @@ module.exports = router;
  * Authorization required: none
  */
 router.post("/register", async function (req, res) {
-    const validation = jsonschema.validate(
-        req.body,
-        signupSchema,
-        { required: true }
-        );
-        
-        if (!validation.valid) {
-        const errs = validation.errors.map(e => e.stack);
-        throw new BadRequestError(errs);
-    }
+  const validation = jsonschema.validate(
+    req.body,
+    signupSchema,
+    { required: true }
+  );
 
-    const newUser = await User.register(req.body);
-    const token = createToken(newUser);
-    return res.status(201).json({ token });
+  if (!validation.valid) {
+    const errs = validation.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const newUser = await User.register(req.body);
+  const token = createToken(newUser);
+  return res.status(201).json({ token });
 });
 
 /** POST /auth/login:  { email, password } => { token }
@@ -49,22 +49,22 @@ router.post("/register", async function (req, res) {
  */
 
 router.post("/login", async function (req, res, next) {
-    const validation = jsonschema.validate(
-      req.body,
-      loginSchema,
-      {required: true}
-    );
-    if (!validation.valid) {
-      const errs = validation.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
-    }
-  
-    const { email, password } = req.body;
+  const validation = jsonschema.validate(
+    req.body,
+    loginSchema,
+    { required: true }
+  );
+  if (!validation.valid) {
+    const errs = validation.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
 
-    const user = await User.authenticate(email, password);
-    const token = createToken(user);
-    return res.json({ token });
-  });
+  const { email, password } = req.body;
+
+  const user = await User.authenticate(email, password);
+  const token = createToken(user);
+  return res.json({ token });
+});
 
 
 

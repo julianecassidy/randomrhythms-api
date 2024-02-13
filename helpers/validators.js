@@ -15,7 +15,7 @@ class DateValidation {
 
         console.log("validateDates");
         const today = new Date();
-        const yearFromToday = new Date(new Date().setFullYear(today.getFullYear() + 1))
+        const yearFromToday = new Date(new Date().setFullYear(today.getFullYear() + 1));
 
         dateFrom = new Date(dateFrom);
         dateTo = new Date(dateTo);

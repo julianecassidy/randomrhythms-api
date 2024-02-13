@@ -14,14 +14,14 @@ const { JAMBASE_API_KEY } = require("../config");
 const { User } = require("./user");
 const { Concert, JAMBASE_BASE_URL } = require("./concert");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
-const { 
-    UnauthorizedError, 
-    BadRequestError, 
+const {
+    UnauthorizedError,
+    BadRequestError,
     NotFoundError } = require("../helpers/expressError");
 
 beforeAll(async function () {
     await db.query("DELETE FROM users");
-})
+});
 
 beforeEach(async function () {
 
@@ -47,7 +47,7 @@ beforeEach(async function () {
 
 afterEach(async function () {
     await db.query("ROLLBACK");
-})
+});
 
 
 /***************************************************************** USER CLASS */
@@ -62,7 +62,7 @@ describe("validateSignUpCode", function () {
         expect(User.validateSignUpCode("wrong", testCode)).toBe(false);
     });
 
-})
+});
 
 describe("register", function () {
     const newUser = {
@@ -149,7 +149,7 @@ describe("authenticate", function () {
             expect(err instanceof UnauthorizedError).toBeTruthy();
         }
     });
-})
+});
 
 
 /************************************************************** CONCERT CLASS */
@@ -167,11 +167,11 @@ describe("getConcerts", function () {
             geoRadiusUnits: "mi",
             apikey: JAMBASE_API_KEY,
         });
-        
+
         fetchMock.get(`${JAMBASE_BASE_URL}events?${params}`, {
             status: 200,
             body: GET_CONCERTS_API_RESP,
-        })
+        });
 
         const resp = await Concert.getConcerts({
             dateFrom: "2024-01-01",
@@ -179,7 +179,7 @@ describe("getConcerts", function () {
             lat: 39.644843,
             lng: -104.968091,
             geoRadius: 5,
-    });
+        });
 
         expect(resp).toEqual([{
             jambaseId: "jambase:11070750",
@@ -216,13 +216,13 @@ describe("getConcerts", function () {
                 streetAddress: "1902 Blake St",
                 city: "Denver",
                 state: "CO",
-                zipCode: "80202"
+                zipCode: "80202",
             },
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",
             ticketUrl: "https://ticketmaster.evyy.net/c/252938/264167/4272?u=https%3A%2F%2Fconcerts.livenation.com%2Fsilent-planet-denver-colorado-02-01-2024%2Fevent%2F1E005F6E984C10F1",
             eventStatus: "scheduled",
-            eventSource: "jambase"
+            eventSource: "jambase",
         }]);
     });
 
@@ -259,7 +259,7 @@ describe("getConcerts", function () {
             lat: 39.644843,
             lng: -104.968091,
             geoRadius: 1,
-    });
+        });
 
         expect(resp).toEqual([]);
     });
@@ -324,8 +324,8 @@ describe("formatConcertData", function () {
             eventStatus: "scheduled",
             eventSource: "jambase"
         });
-    })
-})
+    });
+});
 
 
 describe("getConcertDetails", function () {
@@ -371,7 +371,7 @@ describe("getConcertDetails", function () {
 
         fetchMock.get(
             `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
-                status: 400,
+            status: 400,
             body: {
                 "success": false,
                 "errors": [
@@ -393,7 +393,7 @@ describe("getConcertDetails", function () {
 
     test("throw 400 if API request fails", async function () {
         fetchMock.get(
-        `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:undefined?apikey=${JAMBASE_API_KEY}`, {
+            `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:undefined?apikey=${JAMBASE_API_KEY}`, {
             status: 400,
             body: {
                 "success": false,
@@ -484,12 +484,12 @@ describe("getRandomConcertDetails", function () {
         });
 
         const resp = await Concert.getRandomConcertDetails({
-                dateFrom: "2024-01-01",
-                dateTo: "2024-01-02",
-                lat: 39.644843,
-                lng: -104.968091,
-                geoRadius: 10,
-                price: 10,
+            dateFrom: "2024-01-01",
+            dateTo: "2024-01-02",
+            lat: 39.644843,
+            lng: -104.968091,
+            geoRadius: 10,
+            price: 10,
         });
 
         expect(resp).toEqual([]);

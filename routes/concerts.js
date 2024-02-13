@@ -10,7 +10,7 @@ const concertsSchema = require("../schemas/concerts.json");
 const concertSchema = require("../schemas/concert.json");
 const randomConcertSchema = require("../schemas/randomConcert.json");
 const { convertZipCodeToCoords } = require("../helpers/zipToCoords");
-const { ensureLoggedIn } = require("../middleware/middleware")
+const { ensureLoggedIn } = require("../middleware/middleware");
 const { BadRequestError } = require("../helpers/expressError");
 const { DateValidation } = require("../helpers/validators");
 
@@ -61,10 +61,10 @@ router.get("/", ensureLoggedIn, async function (req, res) {
         throw new BadRequestError("invalid dates");
     }
 
-    const { lat, lng } =  await convertZipCodeToCoords(zipCode);
-    const concerts = await Concert.getConcerts({ dateFrom, dateTo, lat, lng});
+    const { lat, lng } = await convertZipCodeToCoords(zipCode);
+    const concerts = await Concert.getConcerts({ dateFrom, dateTo, lat, lng });
     return res.json({ concerts });
-})
+});
 
 /** GET /concerts/random : { searchParams } => { concerts }
  *
@@ -117,17 +117,17 @@ router.get("/random", ensureLoggedIn, async function (req, res) {
         throw new BadRequestError("invalid dates");
     }
 
-    const { lat, lng } =  await convertZipCodeToCoords(zipCode);
+    const { lat, lng } = await convertZipCodeToCoords(zipCode);
     const randomConcert = await Concert.getRandomConcertDetails({
-         dateFrom,
-         dateTo,
-         lat,
-         lng,
-         geoRadius,
-         price
+        dateFrom,
+        dateTo,
+        lat,
+        lng,
+        geoRadius,
+        price
     });
     return res.json({ randomConcert });
-})
+});
 
 /** GET /concerts/:id : { id } => { concert }
  *

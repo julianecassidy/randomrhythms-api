@@ -1,4 +1,4 @@
-"use strict"; 
+"use strict";
 
 const jwt = require("jsonwebtoken");
 
@@ -47,8 +47,9 @@ describe("authenticateJWT", function () {
 describe("ensureLoggedIn", function () {
   test("works", function () {
     const req = {};
-    const res = { locals: 
-        { user: { id: 1, name: "Test", email: "test@test.com" } } 
+    const res = {
+      locals:
+        { user: { id: 1, name: "Test", email: "test@test.com" } }
     };
     ensureLoggedIn(req, res, next);
   });
@@ -61,7 +62,7 @@ describe("ensureLoggedIn", function () {
 
   test("throws 401 if no valid login", function () {
     const req = {};
-    const res = { locals: { user: { } } };
+    const res = { locals: { user: {} } };
     expect(() => ensureLoggedIn(req, res, next)).toThrow(UnauthorizedError);
   });
 });

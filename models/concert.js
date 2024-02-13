@@ -5,7 +5,7 @@ const _ = require("lodash");
 const { JAMBASE_API_KEY } = require("../config");
 const { BadRequestError, NotFoundError } = require("../helpers/expressError");
 
-const JAMBASE_BASE_URL = "https://www.jambase.com/jb-api/v1/"
+const JAMBASE_BASE_URL = "https://www.jambase.com/jb-api/v1/";
 const DEFAULT_GEO_RADIUS = 50;
 const DEFAULT_GEO_RADIUS_UNITS = "mi";
 const DEFAULT_EVENT_SOURCE = "jambase";
@@ -125,7 +125,7 @@ class Concert {
     * Throws 400 if API request fails.
     */
    static async getConcertDetails(id, idSource = DEFAULT_EVENT_SOURCE) {
-      const params = new URLSearchParams({apikey: JAMBASE_API_KEY});
+      const params = new URLSearchParams({ apikey: JAMBASE_API_KEY });
       const resp = await fetch(
          `${JAMBASE_BASE_URL}events/id/${idSource}:${id}?${params}`
       );
@@ -183,7 +183,7 @@ class Concert {
          lat,
          lng,
          geoRadius,
-      })
+      });
 
       // no matching concerts
       if (concerts.length === 0) return [];

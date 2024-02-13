@@ -1,4 +1,4 @@
-"use strict"; 
+"use strict";
 
 const db = require("../db");
 const bcrypt = require("bcrypt");
@@ -10,8 +10,8 @@ const { BCRYPT_WORK_FACTOR } = require("../config.js");
 /** Users. */
 class User {
 
-    /** Register user with email, name, password, and code. 
-     * Returns { id, email, name, code} 
+    /** Register user with email, name, password, and code.
+     * Returns { id, email, name, code}
      * Throws BadRequestError for missing data oa duplicate email.
      * Throws UnauthorizedError for invalid sign up code.
      */
@@ -28,7 +28,7 @@ class User {
             WHERE email = $1`, [email],
         );
         if (duplicateCheck.rows.length > 0) {
-        throw new BadRequestError(`Email already in use.`);
+            throw new BadRequestError(`Email already in use.`);
         }
 
         const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
@@ -39,8 +39,8 @@ class User {
                 VALUES ($1, $2, $3)
                 RETURNING id, email, name`,
                 [email, name, hashedPassword]);
-          
-                const user = result.rows[0];
+
+            const user = result.rows[0];
 
             return user;
         } catch (err) {
@@ -65,7 +65,7 @@ class User {
                   , name
             FROM users
             WHERE email = $1`, [email]);
-      
+
         const user = result.rows[0];
 
         if (user) {

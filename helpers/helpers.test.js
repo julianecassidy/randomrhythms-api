@@ -2,11 +2,12 @@
 
 const fetchMock = require("fetch-mock");
 const jwt = require("jsonwebtoken");
+const dayjs = require('dayjs');
 
 const { GOOGLE_API_KEY, SECRET_KEY } = require("../config");
 
 const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
-const { validateDates } = require("./validators");
+const { DateValidation } = require("./validators");
 const { createToken } = require("./token.js");
 const { BadRequestError } = require("./expressError");
 
@@ -120,22 +121,39 @@ describe("convertZipCodeToCoords", function () {
 });
 
 
-// NOTE: dates in this test will need to be updated after 2025-12-01
-describe("checks from date before to date", function () {
+describe("checks dates are valid", function () {
     test("true for valid dates", function () {
-        expect(validateDates("2025-01-01", "2025-01-02")).toEqual(true);
-        expect(validateDates("2024-09-01", "2025-01-31")).toEqual(true);
-        expect(validateDates("2025-01-01", "2025-01-01")).toEqual(true);
+        const today = dayjs();
+        const format = 'YYYY-MM-DD';
+        const today_formatted = today.format(format);
+
+        expect(DateValidation.validateDates(
+            today_formatted, today.add(2, "day").format(format))).toEqual(true);
+        expect(DateValidation.validateDates(
+            today_formatted, today.add(1, "year").format(format))).toEqual(true);
+        expect(DateValidation.validateDates(
+            today_formatted, today)).toEqual(true);
     });
 
     test("false for invalid dates", function () {
-        expect(validateDates("2024-12-01", "2024-11-02")).toEqual(false);
-        expect(validateDates("2024-12-02", "2024-12-01")).toEqual(false);
-        expect(validateDates("2025-01-01", "2024-12-02")).toEqual(false);
-        expect(validateDates("2024-01-01", "2024-12-01")).toEqual(false);
-        expect(validateDates("2025-12-01", "2025-12-04")).toEqual(false);
-        expect(validateDates("2024-12-01", "2025-12-01")).toEqual(false);
+        const today = dayjs();
+        const format = 'YYYY-MM-DD';
+        const today_formatted = today.format(format);
 
+        expect(DateValidation.validateDates(
+            today_formatted, today.subtract(1, "month").format(format))).toEqual(false);
+        expect(DateValidation.validateDates(
+            today_formatted, today.subtract(1, "day").format(format))).toEqual(false);
+        expect(DateValidation.validateDates(
+            today_formatted, today.subtract(1, "year").format(format))).toEqual(false);
+        expect(DateValidation.validateDates(
+            today.subtract(1, "month"), today.add(1, "day").format(format))).toEqual(false);
+        expect(DateValidation.validateDates(
+            today.subtract(3, "day"), today.subtract(1, "day").format(format))).toEqual(false);
+        expect(DateValidation.validateDates(
+            today.add(2, "year"), today.add(2, "year").format(format))).toEqual(false);
+        expect(DateValidation.validateDates(
+            today_formatted, today.add(2, "year").format(format))).toEqual(false);
     });
 });
 

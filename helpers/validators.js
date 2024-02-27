@@ -1,5 +1,12 @@
 "use strict";
 
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+
+dayjs.extend(customParseFormat)
+
+const DATE_FORMAT = 'YYYY-MM-DD';
+
 class DateValidation {
     /** Takes two date strings in "yyyy-mm-dd" format. Checks if dateFrom comes
      * before dateTo or is same. Checks if dates are within next year.
@@ -11,27 +18,23 @@ class DateValidation {
      * 2024-03-01, 2024-02-18 -> false
      * 2000-03-01, 2000-03-05 -> false
      * 2025-03-01, 2024-04-01 -> false */
-    validateDates(dateFrom, dateTo) {
+    static validateDates(dateFrom, dateTo) {
 
-        console.log("validateDates");
-        const today = new Date();
-        const yearFromToday = new Date(new Date().setFullYear(today.getFullYear() + 1));
+        const today = dayjs().startOf("day");
+        const yearFromToday = today.add(1, "year");
 
-        dateFrom = new Date(dateFrom);
-        dateTo = new Date(dateTo);
+        dateFrom = dayjs(dateFrom, DATE_FORMAT, true);
+        dateTo = dayjs(dateTo, DATE_FORMAT, true);
 
-        // // from date is earlier than to date, dates are within next year
-        // if (dateFrom < dateTo
-        //     && today < dateFrom
-        //     && dateTo < yearFromToday) {
-        //     return true;
-        // }
-
+        // to date is before from date
         if (dateFrom > dateTo) return false;
+        // to date is before today, from date es before today
         if (dateTo < today || dateFrom < today) return false;
+
+        // dates are more than a year out
         if (dateTo > yearFromToday || dateFrom > yearFromToday) return false;
 
-        // handles when dates are the same
+        // dates are valid, including when dates are the same
         return true;
     }
 }

@@ -104,7 +104,7 @@ Through the API, users can:
 - Get a single concert by id
 - Get a random concert based on date, city, and price
 
-You can check out the front end repo [here](https://github.com/julianecassidy/randomrhythms-api). Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for more details on the project, including database schema, API routes, and React component heirarchy.
+You can check out the front end repo [here](https://github.com/julianecassidy/randomrhythms). Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for more details on the project, including database schema, API routes, and React component heirarchy.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

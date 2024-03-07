@@ -8,6 +8,7 @@ const db = require("../db");
 const bcrypt = require("bcrypt");
 
 const fetchMock = require("fetch-mock");
+const dayjs = require('dayjs');
 
 const _ = require("lodash");
 const spySampleLodash = jest.spyOn(_, 'sample');
@@ -18,76 +19,75 @@ const { Concert, JAMBASE_BASE_URL } = require("./concert");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
 const { NotFoundError, BadRequestError } = require("../helpers/expressError");
 
-beforeAll(async function () {
-    await db.query("DELETE FROM users");
-});
+// beforeAll(async function () {
+//     await db.query("DELETE FROM users");
+// });
 
-beforeEach(async function () {
+// beforeEach(async function () {
 
-    jest.clearAllMocks();
+//     jest.clearAllMocks();
 
-    await db.query("BEGIN");
+//     await db.query("BEGIN");
 
-    async function _hashedPwd(password) {
-        return await bcrypt.hash(password, 1);
-    }
+//     async function _hashedPwd(password) {
+//         return await bcrypt.hash(password, 1);
+//     }
 
-    const testUserData = ["Test", "test@test.com", await _hashedPwd("password")];
+//     const testUserData = ["Test", "test@test.com", await _hashedPwd("password")];
 
-    const result = await db.query(
-        `INSERT INTO users (name, email, password)
-             VALUES ($1, $2, $3)
-        RETURNING id, email, name`,
-        testUserData);
+//     const result = await db.query(
+//         `INSERT INTO users (name, email, password)
+//              VALUES ($1, $2, $3)
+//         RETURNING id, email, name`,
+//         testUserData);
 
-    const testUser = result.rows[0];
-});
+//     const testUser = result.rows[0];
+// });
 
-afterEach(async function () {
-    await db.query("ROLLBACK");
-});
+// afterEach(async function () {
+//     await db.query("ROLLBACK");
+// });
 
-/************************************************************** CONCERT CLASS */
-// REAL VERSION. RUNNING THESE TESTS COUNTS AGAINST OUR API LIMIT
+// /************************************************************** CONCERT CLASS */
+// // REAL VERSION. RUNNING THESE TESTS COUNTS AGAINST OUR API LIMIT
 
-describe("getConcerts", function () {
+// describe("getConcerts", function () {
+//     const today = dayjs();
+//     const format = 'YYYY-MM-DD';
+//     const today_formatted = today.format(format);
 
-    // TODO: This test can only check future dates, but going far enough out for
-    // the test to work but close enough that we have concert data to test is
-    // proving troublesome.
-    // If this app is in use at the end of 2024, the dates of this test will
-    // need to be moved forwards.
-    test("returns a list of concerts data", async function () {
-        const resp = await Concert.getConcerts({
-            dateFrom: "2024-03-01",
-            dateTo: "2024-03-02",
-            lat: 39.644843,
-            lng: -104.968091,
-            geoRadius: 5,
-        });
+//     test("returns a list of concerts data", async function () {
+//         const resp = await Concert.getConcerts({
+//             dateFrom: today_formatted,
+//             dateTo: today.add(1, "day").format(format),
+//             lat: 39.644843,
+//             lng: -104.968091,
+//             geoRadius: 5,
+//         });
 
-        expect(resp).toEqual(expect.arrayContaining([{
-            jambaseId: expect.any(String),
-            headliner: {
-                name: expect.any(String),
-                bandImageUrl: expect.any(String),
-                genres: expect.any(Array)
-            },
-            openers: expect.any(Array),
-            venue: {
-                name: expect.any(String),
-                venueImageUrl: expect.any(String),
-                streetAddress: expect.any(String),
-                city: expect.any(String),
-                state: "CO",
-                zipCode: expect.any(String)
-            },
-            cost: expect.any(String),
-            dateTime: expect.any(String),
-            ticketUrl: expect.any(String),
-            eventStatus: expect.any(String)
-        }]));
-    });
+//         expect(resp).toEqual(expect.arrayContaining([{
+//             jambaseId: expect.any(String),
+//             headliner: {
+//                 name: expect.any(String),
+//                 bandImageUrl: expect.any(String),
+//                 genres: expect.any(Array)
+//             },
+//             openers: expect.any(Array),
+//             venue: {
+//                 name: expect.any(String),
+//                 venueImageUrl: expect.any(String),
+//                 streetAddress: expect.any(String),
+//                 city: expect.any(String),
+//                 state: "CO",
+//                 zipCode: expect.any(String)
+//             },
+//             cost: expect.any(String),
+//             dateTime: expect.any(String),
+//             ticketUrl: expect.any(String),
+//             eventStatus: expect.any(String),
+//             eventSource: "jambase",
+//         }]));
+//     });
 
     // If this app is in use at the end of 2024, the dates of this test will
     // need to be moved forwards.
@@ -117,7 +117,7 @@ describe("getConcerts", function () {
     //         expect(err instanceof BadRequestError).toBeTruthy();
     //     }
     // });
-});
+// });
 
 
 // describe("getConcertDetails", function () {

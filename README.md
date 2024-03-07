@@ -13,6 +13,7 @@
 <div align="center">
 
 ![Top Languages](https://img.shields.io/github/languages/top/julianecassidy/randomrhythms-api)
+![Testing coverage](https://img.shields.io/badge/test_coverage-97%25-blue)
 ![GitHub repo size](https://img.shields.io/github/repo-size/julianecassidy/randomrhythms-api)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/julianecassidy/randomrhythms-api)
 ![GitHub last commit](https://img.shields.io/github/last-commit/julianecassidy/randomrhythms-api)
@@ -94,15 +95,16 @@ Through this project, I've enjoyed learning more about:
 
 ### Key Features
 
-Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for the project, including database schema, API routes, and React component heirarchy.
+This repo contains the back end API for the web app. The back end currently has **97% testing coverage**.
 
 Through the API, users can:
 
-- Create an with a sign up code
+- Create an account with a sign up code
 - Get a list of all concerts based on date and city
 - Get a single concert by id
 - Get a random concert based on date, city, and price
 
+You can check out the front end repo [here](https://github.com/julianecassidy/randomrhythms-api). Check out the [Miro board](https://miro.com/app/board/uXjVNCfgqA8=/) for more details on the project, including database schema, API routes, and React component heirarchy.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -191,7 +193,8 @@ This project contains both a backend API and (eventually) a frontend React app. 
 [JulianeCassidy](https://julianecassidy.com)
 [LinkedIn](https://www.linkedin.com/in/julianemcassidy/)
 
-Project Link: [https://github.com/julianecassidy/randomrhythms-api](https://github.com/julianecassidy/randomrhythms-api)
+Project Front End Link: [https://github.com/julianecassidy/randomrhythms](https://github.com/julianecassidy/randomrhythms)
+Project Back End Link: [https://github.com/julianecassidy/randomrhythms-api](https://github.com/julianecassidy/randomrhythms-api)
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

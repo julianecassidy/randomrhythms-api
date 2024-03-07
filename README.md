@@ -190,7 +190,7 @@ This project contains both a backend API and (eventually) a frontend React app. 
 
 ## Contact
 
-- [JulianeCassidy](https://julianecassidy.com)
+- [Juliane Cassidy](https://julianecassidy.com)
 - [LinkedIn](https://www.linkedin.com/in/julianemcassidy/)
 
 - Project Front End Link: [https://github.com/julianecassidy/randomrhythms](https://github.com/julianecassidy/randomrhythms)

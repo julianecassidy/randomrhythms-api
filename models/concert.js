@@ -119,7 +119,7 @@ class Concert {
          door_time,
          ticketUrl,
          eventStatus,
-        eventSource
+         eventSource
        }
     * Throws 404 if concert is not found.
     * Throws 400 if API request fails.
@@ -163,7 +163,7 @@ class Concert {
          age limit,
          ticketUrl,
          eventStatus,
-        eventSource
+         eventSource
        }
     * If no concerts match filters, returns {}.
     * Throws 400 if API requet fails on bad data or other problem.

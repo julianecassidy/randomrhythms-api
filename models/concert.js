@@ -27,7 +27,8 @@ class Concert {
         venue: {
          name,
          venueImageUrl,
-         address
+         address,
+         distance
         },
         cost,
         dateTime,
@@ -89,9 +90,9 @@ class Concert {
             state: venue.address.addressRegion.alternateName,
             zipCode: venue.address.postalCode,
          },
-         cost: concertData.offers[0].priceSpecification.price || "",
+         cost: concertData.offers[0]?.priceSpecification?.price || "",
          dateTime: concertData.startDate,
-         ticketUrl: concertData.offers[0].url,
+         ticketUrl: concertData.offers[0]?.url,
          eventStatus: concertData.eventStatus,
          eventSource: DEFAULT_EVENT_SOURCE,
       };
@@ -112,7 +113,8 @@ class Concert {
          venue: {
             name,
             venueImageUrl,
-            address
+            address,
+            distance
          },
          cost,
          dateTime,
@@ -155,7 +157,8 @@ class Concert {
          venue: {
             name,
             venueImageUrl,
-            address
+            address,
+            distance
          },
          cost,
          dateTime,

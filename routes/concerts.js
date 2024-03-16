@@ -25,14 +25,15 @@ module.exports = router;
  * [{ id,
         headliner: {
          name,
-         bandImageUrl
+         bandImageUrl,
          genres
         },
         openers: [name]
         venue: {
          name,
          venueImageUrl,
-         address
+         address,
+         distance
         },
         cost,
         dateTime,
@@ -76,14 +77,15 @@ router.get("/", ensureLoggedIn, async function (req, res) {
  * [{ id,
         headliner: {
          name,
-         bandImageUrl
+         bandImageUrl,
          genres
         },
         openers: [name]
         venue: {
          name,
          venueImageUrl,
-         address
+         address,
+         distance
         },
         cost,
         dateTime,
@@ -137,14 +139,15 @@ router.get("/random", ensureLoggedIn, async function (req, res) {
  * { id,
         headliner: {
          name,
-         bandImageUrl
+         bandImageUrl,
          genres
         },
         openers: [name]
         venue: {
          name,
          venueImageUrl,
-         address
+         address,
+         distance
         },
         cost,
         dateTime,

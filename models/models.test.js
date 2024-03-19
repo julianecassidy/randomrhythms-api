@@ -195,7 +195,8 @@ describe("getConcerts", function () {
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
-                zipCode: "80202"
+                zipCode: "80202",
+                distance: 9.8
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -217,7 +218,7 @@ describe("getConcerts", function () {
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202",
-                distance: "5"
+                distance: 5
             },
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",
@@ -318,7 +319,7 @@ describe("formatConcertData", function () {
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202",
-                distance: "5"
+                distance: 9.8
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -359,7 +360,7 @@ describe("getConcertDetails", function () {
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202",
-                distance: "5"
+                distance: 9.8
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -460,7 +461,7 @@ describe("getRandomConcertDetails", function () {
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202",
-                distance: "5"
+                distance: 5
             },
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",

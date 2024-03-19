@@ -92,7 +92,7 @@ class Concert {
          },
          cost: concertData.offers[0]?.priceSpecification?.price || "",
          dateTime: concertData.startDate,
-         ticketUrl: concertData.offers[0]?.url,
+         ticketUrl: concertData.offers[0]?.url || "",
          eventStatus: concertData.eventStatus,
          eventSource: DEFAULT_EVENT_SOURCE,
       };

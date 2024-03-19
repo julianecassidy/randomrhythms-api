@@ -335,7 +335,7 @@ describe("GET /concerts", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: "5"
+                    distance: 5
                 },
                 cost: "",
                 dateTime: "2024-02-01T19:30:00",
@@ -357,7 +357,7 @@ describe("GET /concerts", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: "5"
+                    distance: 5
                 },
                 cost: "22.00",
                 dateTime: "2024-02-01T18:00:00",
@@ -490,7 +490,7 @@ describe("GET /concert/:id", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: "5"
+                    distance: 9.8
                 },
                 cost: "",
                 dateTime: "2024-02-01T19:30:00",
@@ -636,7 +636,7 @@ describe("GET /concerts/random", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: "3"
+                    distance: 3
                 },
                 cost: "22.00",
                 dateTime: "2024-02-01T18:00:00",

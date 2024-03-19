@@ -7,6 +7,8 @@ const { BadRequestError } = require("./expressError");
 
 /** Converts a five digit zip code string into latitude and longitude.
  * ex. "80113" -> {lat: 39.644843, lng: -104.968091}
+ *
+ * Throws bad requst error for invalid zip codes.
  */
 async function convertZipCodeToCoords(zipCode) {
 

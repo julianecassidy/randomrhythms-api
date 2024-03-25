@@ -13,6 +13,7 @@ const _ = require("lodash");
 const { JAMBASE_API_KEY } = require("../config");
 const { User } = require("./user");
 const { Concert, JAMBASE_BASE_URL } = require("./concert");
+const { Distance } = require("../helpers/getDistance");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
 const {
     UnauthorizedError,
@@ -27,6 +28,7 @@ beforeEach(async function () {
 
     fetchMock.reset();
     jest.clearAllMocks();
+    Distance.getDistance = jest.fn();
 
     await db.query("BEGIN");
 
@@ -173,6 +175,8 @@ describe("getConcerts", function () {
             body: GET_CONCERTS_API_RESP,
         });
 
+        Distance.getDistance.mockReturnValue(5);
+
         const resp = await Concert.getConcerts({
             dateFrom: "2024-01-01",
             dateTo: "2024-01-02",
@@ -195,7 +199,8 @@ describe("getConcerts", function () {
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
-                zipCode: "80202"
+                zipCode: "80202",
+                distance: 5
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -217,6 +222,7 @@ describe("getConcerts", function () {
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202",
+                distance: 5
             },
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",
@@ -297,10 +303,14 @@ describe("getConcerts", function () {
 
 
 describe("formatConcertData", function () {
-    test("formats data", function () {
+    test("formats data", async function () {
         const rawConcertData = GET_CONCERTS_API_RESP.events[0];
+        const lat = 39.644843;
+        const lng = -104.968091;
 
-        const response = Concert.formatConcertData(rawConcertData);
+        Distance.getDistance.mockReturnValue(9.8);
+
+        const response = await Concert.formatConcertData(rawConcertData, lat, lng);
 
         expect(response).toEqual({
             jambaseId: "jambase:11070750",
@@ -316,7 +326,8 @@ describe("formatConcertData", function () {
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
-                zipCode: "80202"
+                zipCode: "80202",
+                distance: 9.8
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -356,7 +367,8 @@ describe("getConcertDetails", function () {
                 streetAddress: "1400 Curtis Street",
                 city: "Denver",
                 state: "CO",
-                zipCode: "80202"
+                zipCode: "80202",
+                distance: null
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -433,6 +445,8 @@ describe("getRandomConcertDetails", function () {
             body: GET_CONCERTS_API_RESP,
         });
 
+        Distance.getDistance.mockReturnValue(5);
+
         const resp = await Concert.getRandomConcertDetails({
             dateFrom: "2024-01-01",
             dateTo: "2024-01-02",
@@ -456,7 +470,8 @@ describe("getRandomConcertDetails", function () {
                 streetAddress: "1902 Blake St",
                 city: "Denver",
                 state: "CO",
-                zipCode: "80202"
+                zipCode: "80202",
+                distance: 5
             },
             cost: "22.00",
             dateTime: "2024-02-01T18:00:00",
@@ -529,5 +544,6 @@ describe("getRandomConcertDetails", function () {
 
 
 afterAll(async function () {
+    jest.clearAllMocks();
     await db.end();
 });

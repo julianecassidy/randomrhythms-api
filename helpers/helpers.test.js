@@ -6,11 +6,11 @@ const dayjs = require('dayjs');
 
 const { GOOGLE_API_KEY, SECRET_KEY } = require("../config");
 
-const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
+const { convertZipCodeToCoords, GOOGLE_BASE_URL_GEOCODE } = require("./zipToCoords");
+const { Distance, GOOGLE_BASE_URL_DISTANCE} = require("./getDistance");
 const { DateValidation } = require("./validators");
 const { createToken } = require("./token.js");
 const { BadRequestError } = require("./expressError");
-
 
 // REAL VERSION. RUNNING THIS TEST COUNTS AGAINST OUR API LIMIT
 // describe("convertZipCodeToCoords", function () {
@@ -34,19 +34,69 @@ const { BadRequestError } = require("./expressError");
 // });
 
 
+// REAL VERSION. RUNNING THIS TEST COUNTS AGAINST OUR API LIMIT
+// describe("getDistance", function () {
+//     test("returns distance for valid origin and destination", async function () {
+//         console.log("testing getDistance; calling API")
+//         const distance = await Distance.getDistance(
+//             39.644843,
+//             -104.968091,
+//             "1400 Curtis Street",
+//             "Denver",
+//             "CO",
+//             "80204"
+//         );
+
+//         expect(distance).toEqual(9.8);
+//     });
+
+//     test("throws 400 for invalid destination", async function () {
+//         console.log("testing getDistance; calling API")
+//         try {
+//             await Distance.getDistance(
+//                 39.644843,
+//                 -104.968091,
+//                 "not",
+//                 "a",
+//                 "valid",
+//                 "destination");
+//             throw new Error("fail test, you shouldn't get here");
+//         } catch (err) {
+//             expect(err instanceof BadRequestError).toBeTruthy();
+//         }
+//     });
+
+//     test("throws 400 for invalid origin", async function () {
+//         console.log("testing getDistance; calling API")
+//         try {
+//             await Distance.getDistance(
+//                 "not-a-coord",
+//                 -104.968091,
+//                 "1400 Curtis Street",
+//                 "Denver",
+//                 "CO",
+//                 "80204");
+//             throw new Error("fail test, you shouldn't get here");
+//         } catch (err) {
+//             expect(err instanceof BadRequestError).toBeTruthy();
+//         }
+//     });
+// });
+
+
 // MOCKED VERSION. RUN WITHOUT RESTRAINT.
 describe("convertZipCodeToCoords", function () {
     const validZip = 80113;
 
     test("converts valid zip code to lat and long", async function () {
+        fetchMock.reset();
+
         const testParams = new URLSearchParams({
             components: `postal_code:${validZip}|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.reset();
-
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -77,7 +127,7 @@ describe("convertZipCodeToCoords", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],
@@ -103,7 +153,7 @@ describe("convertZipCodeToCoords", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],
@@ -113,6 +163,176 @@ describe("convertZipCodeToCoords", function () {
 
         try {
             await convertZipCodeToCoords("80113");
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
+});
+
+
+// MOCKED VERSION. RUN WITHOUT RESTRAINT.
+describe("gets distance from venue to zip code", function () {
+
+    test("returns distance for valid origin and destination", async function () {
+        fetchMock.reset();
+
+        const testParams = new URLSearchParams({
+            origins: "39.644843,-104.968091",
+            destinations: "1400 Curtis Street, Denver, CO 80204",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${testParams}`, {
+            status: 200,
+            body: {
+                "destination_addresses": [
+                    "1400 Curtis Street, Denver, CO 80204, USA"
+                ],
+                "origin_addresses": [
+                    "20 Cherry Hills Dr, Englewood, CO 80113, USA"
+                ],
+                "rows": [{
+                    "elements": [{
+                        "distance": {
+                            "text": "9.8 mi",
+                            "value": 15771
+                        },
+                        "duration": {
+                            "text": "21 mins",
+                            "value": 123,
+                        },
+                        "status": "OK"
+                    }],
+                }],
+                "status": "OK"
+            }
+        });
+
+        const distance = await Distance.getDistance(
+            39.644843,
+            -104.968091,
+            "1400 Curtis Street",
+            "Denver",
+            "CO",
+            "80204"
+        );
+
+        expect(distance).toEqual(9.8);
+    });
+
+    test("throws 400 for invalid destination", async function () {
+        fetchMock.reset();
+
+        const testParams = new URLSearchParams({
+            origins: "39.644843,-104.968091",
+            destinations: "not, a, valid destination",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${testParams}`, {
+            status: 200,
+            body: {
+                "destination_addresses": [
+                    ""
+                ],
+                "origin_addresses": [
+                    ""
+                ],
+                "rows": [{
+                    "elements": [{
+                        "status": "NOT_FOUND"
+                    }]
+                }],
+                "status": "OK"
+            }
+        });
+
+        try {
+            await Distance.getDistance(
+                39.644843,
+                -104.968091,
+                "not",
+                "a",
+                "valid",
+                "destination");
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
+
+    test("throws 400 for invalid origin", async function () {
+        fetchMock.reset();
+
+        const testParams = new URLSearchParams({
+            origins: "not-a-coord,-104.968091",
+            destinations: "1400 Curtis Street, Denver, CO 80204",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${testParams}`, {
+            status: 200,
+            body: {
+                "destination_addresses": [
+                    "1400 Curtis Street, Denver, CO 80204, USA"
+                ],
+                "origin_addresses": [
+                    ""
+                ],
+                "rows": [{
+                    "elements": [{
+                        "status": "NOT_FOUND"
+                    }]
+                }],
+                "status": "OK"
+            }
+        });
+
+        try {
+            await Distance.getDistance(
+                "not-a-coord",
+                -104.968091,
+                "1400 Curtis Street",
+                "Denver",
+                "CO",
+                "80204");
+            throw new Error("fail test, you shouldn't get here");
+        } catch (err) {
+            expect(err instanceof BadRequestError).toBeTruthy();
+        }
+    });
+
+    test("throws 400 for other API errors", async function () {
+        fetchMock.reset();
+
+        const testParams = new URLSearchParams({
+            origins: "39.644843,-104.968091",
+            destinations: "1400 Curtis Street, Denver, CO 80204",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${testParams}`, {
+            status: 200,
+            body: {
+                "results": [],
+                "status": "OVER_DAILY_LIMIT"
+            }
+        });
+
+        try {
+            await Distance.getDistance(
+                39.644843,
+                -104.968091,
+                "1400 Curtis Street",
+                "Denver",
+                "CO",
+                "80204"
+            );
             throw new Error("fail test, you shouldn't get here");
         } catch (err) {
             expect(err instanceof BadRequestError).toBeTruthy();

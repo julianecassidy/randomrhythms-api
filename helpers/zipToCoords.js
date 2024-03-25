@@ -1,12 +1,14 @@
 "use strict";
 
 const { GOOGLE_API_KEY } = require("../config");
-const GOOGLE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json";
+const GOOGLE_BASE_URL_GEOCODE = "https://maps.googleapis.com/maps/api/geocode/json";
 
 const { BadRequestError } = require("./expressError");
 
 /** Converts a five digit zip code string into latitude and longitude.
  * ex. "80113" -> {lat: 39.644843, lng: -104.968091}
+ *
+ * Throws bad requst error for invalid zip codes.
  */
 async function convertZipCodeToCoords(zipCode) {
 
@@ -16,7 +18,7 @@ async function convertZipCodeToCoords(zipCode) {
     });
 
     const resp = await fetch(
-        `${GOOGLE_BASE_URL}?${params}`,
+        `${GOOGLE_BASE_URL_GEOCODE}?${params}`,
         { method: 'GET' }
     );
     const locationData = await resp.json();
@@ -28,4 +30,4 @@ async function convertZipCodeToCoords(zipCode) {
     }
 }
 
-module.exports = { convertZipCodeToCoords, GOOGLE_BASE_URL };
+module.exports = { convertZipCodeToCoords, GOOGLE_BASE_URL_GEOCODE };

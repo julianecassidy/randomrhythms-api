@@ -497,7 +497,7 @@ describe("GET /concert/:id", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: 9.8
+                    distance: null
                 },
                 cost: "",
                 dateTime: "2024-02-01T19:30:00",
@@ -904,5 +904,6 @@ describe("GET /concerts/random", function () {
 
 
 afterAll(async function () {
+    jest.clearAllMocks();
     await db.end();
 });

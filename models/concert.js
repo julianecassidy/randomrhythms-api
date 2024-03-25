@@ -4,6 +4,7 @@ const _ = require("lodash");
 
 const { JAMBASE_API_KEY } = require("../config");
 const { BadRequestError, NotFoundError } = require("../helpers/expressError");
+const { Distance } = require("../helpers/getDistance");
 
 const JAMBASE_BASE_URL = "https://www.jambase.com/jb-api/v1/";
 const DEFAULT_GEO_RADIUS = 50;
@@ -60,7 +61,13 @@ class Concert {
       const concertData = await resp.json();
 
       if (concertData.success === true) {
-         const concerts = concertData.events.map(c => this.formatConcertData(c));
+         const formattedConcertPromises = [];
+         for (const c of concertData.events) {
+            const resp = await this.formatConcertData(c, lat, lng);
+            formattedConcertPromises.push(resp);
+         }
+
+         const concerts = await Promise.all(formattedConcertPromises);
          return concerts;
       } else {
          throw new BadRequestError;
@@ -69,10 +76,22 @@ class Concert {
 
    /** Parses an object of raw concert data from Jambase API and returns needed
     * fields. This is specific to concert data retreived from Jambase. */
-   static formatConcertData(concertData) {
+   static async formatConcertData(concertData, origLat, origLng) {
       const headliner = concertData.performer[0];
       const openers = concertData.performer.slice(1);
       const venue = concertData.location;
+
+      let distance = null;
+      if (origLat && origLng) {
+         distance = await Distance.getDistance(
+            origLat,
+            origLng,
+            venue.address.streetAddress,
+            venue.address.addressLocality,
+            venue.address.addressRegion.alternateName,
+            venue.address.postalCode
+         );
+      };
 
       const concert = {
          jambaseId: concertData.identifier,
@@ -89,6 +108,7 @@ class Concert {
             city: venue.address.addressLocality,
             state: venue.address.addressRegion.alternateName,
             zipCode: venue.address.postalCode,
+            distance: distance,
          },
          cost: concertData.offers[0]?.priceSpecification?.price || "",
          dateTime: concertData.startDate,

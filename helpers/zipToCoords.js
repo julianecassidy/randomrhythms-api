@@ -18,7 +18,7 @@ async function convertZipCodeToCoords(zipCode) {
     });
 
     const resp = await fetch(
-        `${GOOGLE_BASE_URL}?${params}`,
+        `${GOOGLE_BASE_URL_GEOCODE}?${params}`,
         { method: 'GET' }
     );
     const locationData = await resp.json();

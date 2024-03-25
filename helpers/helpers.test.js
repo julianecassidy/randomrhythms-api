@@ -6,7 +6,7 @@ const dayjs = require('dayjs');
 
 const { GOOGLE_API_KEY, SECRET_KEY } = require("../config");
 
-const { convertZipCodeToCoords, GOOGLE_BASE_URL } = require("./zipToCoords");
+const { convertZipCodeToCoords, GOOGLE_BASE_URL_GEOCODE } = require("./zipToCoords");
 const { getDistance, GOOGLE_BASE_URL_DISTANCE} = require("./getDistance");
 const { DateValidation } = require("./validators");
 const { createToken } = require("./token.js");
@@ -96,7 +96,7 @@ describe("convertZipCodeToCoords", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -127,7 +127,7 @@ describe("convertZipCodeToCoords", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],
@@ -153,7 +153,7 @@ describe("convertZipCodeToCoords", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],

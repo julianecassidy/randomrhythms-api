@@ -1,7 +1,7 @@
 "use strict";
 
 const { GOOGLE_API_KEY } = require("../config");
-const GOOGLE_BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json";
+const GOOGLE_BASE_URL_GEOCODE = "https://maps.googleapis.com/maps/api/geocode/json";
 
 const { BadRequestError } = require("./expressError");
 
@@ -30,4 +30,4 @@ async function convertZipCodeToCoords(zipCode) {
     }
 }
 
-module.exports = { convertZipCodeToCoords, GOOGLE_BASE_URL };
+module.exports = { convertZipCodeToCoords, GOOGLE_BASE_URL_GEOCODE };

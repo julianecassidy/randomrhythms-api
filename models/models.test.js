@@ -13,6 +13,7 @@ const _ = require("lodash");
 const { JAMBASE_API_KEY } = require("../config");
 const { User } = require("./user");
 const { Concert, JAMBASE_BASE_URL } = require("./concert");
+const { GOOGLE_BASE_URL_DISTANCE } = require("../helpers/getDistance");
 const { GET_CONCERTS_API_RESP, GET_CONCERT_API_RESP } = require("./_testCommon");
 const {
     UnauthorizedError,
@@ -173,6 +174,39 @@ describe("getConcerts", function () {
             body: GET_CONCERTS_API_RESP,
         });
 
+        const distanceParams = new URLSearchParams({
+            origins: "39.644843,-104.968091",
+            destinations: "1400 Curtis Street, Denver, CO 80204",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${distanceParams}`, {
+            status: 200,
+            body: {
+                "destination_addresses": [
+                    "1400 Curtis Street, Denver, CO 80204, USA"
+                ],
+                "origin_addresses": [
+                    "20 Cherry Hills Dr, Englewood, CO 80113, USA"
+                ],
+                "rows": [{
+                    "elements": [{
+                        "distance": {
+                            "text": "9.8 mi",
+                            "value": 15771
+                        },
+                        "duration": {
+                            "text": "21 mins",
+                            "value": 123,
+                        },
+                        "status": "OK"
+                    }],
+                }],
+                "status": "OK"
+            }
+        });
+
         const resp = await Concert.getConcerts({
             dateFrom: "2024-01-01",
             dateTo: "2024-01-02",
@@ -299,10 +333,47 @@ describe("getConcerts", function () {
 
 
 describe("formatConcertData", function () {
-    test("formats data", function () {
+    test("formats data", async function () {
         const rawConcertData = GET_CONCERTS_API_RESP.events[0];
+        const lat = 39.644843;
+        const lng = -104.968091;
 
-        const response = Concert.formatConcertData(rawConcertData);
+        fetchMock.reset();
+
+        const distanceParams = new URLSearchParams({
+            origins: "39.644843,-104.968091",
+            destinations: "1400 Curtis Street, Denver, CO 80204",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${distanceParams}`, {
+            status: 200,
+            body: {
+                "destination_addresses": [
+                    "1400 Curtis Street, Denver, CO 80204, USA"
+                ],
+                "origin_addresses": [
+                    "20 Cherry Hills Dr, Englewood, CO 80113, USA"
+                ],
+                "rows": [{
+                    "elements": [{
+                        "distance": {
+                            "text": "9.8 mi",
+                            "value": 15771
+                        },
+                        "duration": {
+                            "text": "21 mins",
+                            "value": 123,
+                        },
+                        "status": "OK"
+                    }],
+                }],
+                "status": "OK"
+            }
+        });
+
+        const response = await Concert.formatConcertData(rawConcertData, lat, lng);
 
         expect(response).toEqual({
             jambaseId: "jambase:11070750",
@@ -360,7 +431,6 @@ describe("getConcertDetails", function () {
                 city: "Denver",
                 state: "CO",
                 zipCode: "80202",
-                distance: 9.8
             },
             cost: "",
             dateTime: "2024-02-01T19:30:00",
@@ -435,6 +505,39 @@ describe("getRandomConcertDetails", function () {
         fetchMock.get(`${JAMBASE_BASE_URL}events?${params}`, {
             status: 200,
             body: GET_CONCERTS_API_RESP,
+        });
+
+        const distanceParams = new URLSearchParams({
+            origins: "39.644843,-104.968091",
+            destinations: "1902 Blake St, Denver, CO 80202",
+            units: "imperial",
+            key: GOOGLE_API_KEY,
+        });
+
+        fetchMock.get(`${GOOGLE_BASE_URL_DISTANCE}?${distanceParams}`, {
+            status: 200,
+            body: {
+                "destination_addresses": [
+                    "1902 Blake St, Denver, CO 80202, USA"
+                ],
+                "origin_addresses": [
+                    "20 Cherry Hills Dr, Englewood, CO 80113, USA"
+                ],
+                "rows": [{
+                    "elements": [{
+                        "distance": {
+                            "text": "5 mi",
+                            "value": 15771
+                        },
+                        "duration": {
+                            "text": "21 mins",
+                            "value": 123,
+                        },
+                        "status": "OK"
+                    }],
+                }],
+                "status": "OK"
+            }
         });
 
         const resp = await Concert.getRandomConcertDetails({

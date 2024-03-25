@@ -14,7 +14,7 @@ const { User } = require("../models/user");
 const { Concert } = require("../models/concert");
 const { JAMBASE_API_KEY, GOOGLE_API_KEY } = require("../config");
 const { JAMBASE_BASE_URL } = require("../models/concert");
-const { GOOGLE_BASE_URL } = require("../helpers/zipToCoords");
+const { GOOGLE_BASE_URL_GEOCODE } = require("../helpers/zipToCoords");
 const {
     commonBeforeAll,
     GET_CONCERTS_API_RESP,
@@ -22,6 +22,7 @@ const {
 } = require("./_testCommon");
 const { createToken } = require("../helpers/token");
 const { DateValidation } = require("../helpers/validators");
+const { Distance } = require("../helpers/getDistance");
 
 let testToken;
 
@@ -275,16 +276,18 @@ describe("GET /concerts", function () {
     };
 
     DateValidation.validateDates = jest.fn();
+    Distance.getDistance = jest.fn();
 
     test("should return a list of concerts", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -335,7 +338,7 @@ describe("GET /concerts", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: 5
+                    distance: 9.8
                 },
                 cost: "",
                 dateTime: "2024-02-01T19:30:00",
@@ -357,7 +360,7 @@ describe("GET /concerts", function () {
                     city: "Denver",
                     state: "CO",
                     zipCode: "80202",
-                    distance: 5
+                    distance: 9.8
                 },
                 cost: "22.00",
                 dateTime: "2024-02-01T18:00:00",
@@ -379,6 +382,7 @@ describe("GET /concerts", function () {
 
     test("throws 400 for invalid dates", async function () {
         DateValidation.validateDates.mockReturnValue(false);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const invalidParams = new URLSearchParams({
             eventDateFrom: "2023-01-01",
@@ -415,13 +419,14 @@ describe("GET /concerts", function () {
         const invalidZip = "00000";
 
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const testParams = new URLSearchParams({
             components: `postal_code:${invalidZip}|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],
@@ -439,6 +444,7 @@ describe("GET /concerts", function () {
 
     test("throws 401 for invalid token and invalid dates", async function () {
         DateValidation.validateDates.mockReturnValue(false);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const response = await request(app)
             .get("/concerts/")
@@ -450,6 +456,7 @@ describe("GET /concerts", function () {
 
     test("throws 401 for invalid token and invalid zip code", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const response = await request(app)
             .get("/concerts/")
@@ -568,6 +575,7 @@ describe("GET /concert/:id", function () {
 describe("GET /concerts/random", function () {
 
     DateValidation.validateDates = jest.fn();
+    Distance.getDistance = jest.fn();
 
     const concertParams = new URLSearchParams({
         eventDateFrom: "2024-01-01",
@@ -589,13 +597,14 @@ describe("GET /concerts/random", function () {
 
     test("should return a concert with all filters", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(3);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -649,13 +658,14 @@ describe("GET /concerts/random", function () {
 
     test("throws 401 for invalid token", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -684,13 +694,14 @@ describe("GET /concerts/random", function () {
 
     test("throws 400 for invalid dates", async function () {
         DateValidation.validateDates.mockReturnValue(false);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -720,13 +731,14 @@ describe("GET /concerts/random", function () {
 
     test("throws 400 for invalid data", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -756,6 +768,7 @@ describe("GET /concerts/random", function () {
 
     test("throws 400 for invalid zip code", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const invalidZip = "00000";
 
@@ -764,7 +777,7 @@ describe("GET /concerts/random", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],
@@ -782,13 +795,14 @@ describe("GET /concerts/random", function () {
 
     test("throws 401 for invalid token and invalid dates", async function () {
         DateValidation.validateDates.mockReturnValue(false);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{
@@ -818,6 +832,7 @@ describe("GET /concerts/random", function () {
 
     test("throws 401 for invalid token and invalid zip code", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const invalidZip = "00000";
 
@@ -826,7 +841,7 @@ describe("GET /concerts/random", function () {
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${testParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
             status: 200,
             body: {
                 "results": [],
@@ -845,13 +860,14 @@ describe("GET /concerts/random", function () {
     // This test is last because it mocks a method the others test use unmocked.
     test("should return a concert with dates and zip code", async function () {
         DateValidation.validateDates.mockReturnValue(true);
+        Distance.getDistance.mockReturnValue(9.8);
 
         const zipCodeParams = new URLSearchParams({
             components: `postal_code:80113|country:US`,
             key: GOOGLE_API_KEY,
         });
 
-        fetchMock.get(`${GOOGLE_BASE_URL}?${zipCodeParams}`, {
+        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
             status: 200,
             body: {
                 "results": [{

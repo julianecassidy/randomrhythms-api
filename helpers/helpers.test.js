@@ -7,7 +7,7 @@ const dayjs = require('dayjs');
 const { GOOGLE_API_KEY, SECRET_KEY } = require("../config");
 
 const { convertZipCodeToCoords, GOOGLE_BASE_URL_GEOCODE } = require("./zipToCoords");
-const { getDistance, GOOGLE_BASE_URL_DISTANCE} = require("./getDistance");
+const { Distance, GOOGLE_BASE_URL_DISTANCE} = require("./getDistance");
 const { DateValidation } = require("./validators");
 const { createToken } = require("./token.js");
 const { BadRequestError } = require("./expressError");
@@ -38,7 +38,7 @@ const { BadRequestError } = require("./expressError");
 // describe("getDistance", function () {
 //     test("returns distance for valid origin and destination", async function () {
 //         console.log("testing getDistance; calling API")
-//         const distance = await getDistance(
+//         const distance = await Distance.getDistance(
 //             39.644843,
 //             -104.968091,
 //             "1400 Curtis Street",
@@ -53,7 +53,7 @@ const { BadRequestError } = require("./expressError");
 //     test("throws 400 for invalid destination", async function () {
 //         console.log("testing getDistance; calling API")
 //         try {
-//             await getDistance(
+//             await Distance.getDistance(
 //                 39.644843,
 //                 -104.968091,
 //                 "not",
@@ -69,7 +69,7 @@ const { BadRequestError } = require("./expressError");
 //     test("throws 400 for invalid origin", async function () {
 //         console.log("testing getDistance; calling API")
 //         try {
-//             await getDistance(
+//             await Distance.getDistance(
 //                 "not-a-coord",
 //                 -104.968091,
 //                 "1400 Curtis Street",
@@ -210,7 +210,7 @@ describe("gets distance from venue to zip code", function () {
             }
         });
 
-        const distance = await getDistance(
+        const distance = await Distance.getDistance(
             39.644843,
             -104.968091,
             "1400 Curtis Street",
@@ -251,7 +251,7 @@ describe("gets distance from venue to zip code", function () {
         });
 
         try {
-            await getDistance(
+            await Distance.getDistance(
                 39.644843,
                 -104.968091,
                 "not",
@@ -293,7 +293,7 @@ describe("gets distance from venue to zip code", function () {
         });
 
         try {
-            await getDistance(
+            await Distance.getDistance(
                 "not-a-coord",
                 -104.968091,
                 "1400 Curtis Street",
@@ -325,7 +325,7 @@ describe("gets distance from venue to zip code", function () {
         });
 
         try {
-            await getDistance(
+            await Distance.getDistance(
                 39.644843,
                 -104.968091,
                 "1400 Curtis Street",

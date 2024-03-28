@@ -4,11 +4,13 @@ const { NotFoundError } = require("./helpers/expressError");
 
 const { authenticateJWT } = require("./middleware/middleware");
 
+const cors = require('cors');
 const app = express();
 
 // app.use(cors());
 app.use(express.json());                           // process JSON data
-app.use(express.urlencoded());                     // process trad form data   
+app.use(express.urlencoded());
+app.use(cors());                     // process trad form data
 
 app.use(authenticateJWT);
 

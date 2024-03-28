@@ -22,15 +22,6 @@ const {
 
 beforeAll(async function () {
     await db.query("DELETE FROM users");
-});
-
-beforeEach(async function () {
-
-    fetchMock.reset();
-    jest.clearAllMocks();
-    Distance.getDistance = jest.fn();
-
-    await db.query("BEGIN");
 
     async function _hashedPwd(password) {
         return await bcrypt.hash(password, 1);
@@ -45,6 +36,15 @@ beforeEach(async function () {
         testUserData);
 
     const testUser = result.rows[0];
+});
+
+beforeEach(async function () {
+
+    fetchMock.reset();
+    jest.clearAllMocks();
+    Distance.getDistance = jest.fn();
+
+    await db.query("BEGIN");
 });
 
 afterEach(async function () {

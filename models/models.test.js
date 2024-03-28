@@ -186,7 +186,7 @@ describe("getConcerts", function () {
         });
 
         expect(resp).toEqual([{
-            jambaseId: "jambase:11070750",
+            id: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
                 bandImageUrl: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
@@ -208,7 +208,7 @@ describe("getConcerts", function () {
             eventStatus: "scheduled",
             eventSource: "jambase"
         }, {
-            jambaseId: "jambase:11297801",
+            id: "jambase:11297801",
             headliner: {
                 name: "Silent Planet",
                 bandImageUrl: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",
@@ -313,7 +313,7 @@ describe("formatConcertData", function () {
         const response = await Concert.formatConcertData(rawConcertData, lat, lng);
 
         expect(response).toEqual({
-            jambaseId: "jambase:11070750",
+            id: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
                 bandImageUrl: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
@@ -340,13 +340,12 @@ describe("formatConcertData", function () {
 
 
 describe("getConcertDetails", function () {
-    const testConcertIdSource = "jambase";
 
     test("returns a concert", async function () {
-        const testConcertId = "123";
+        const testConcertId = "jambase:123";
 
         fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
+            `${JAMBASE_BASE_URL}events/id/${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
             status: 200,
             body: GET_CONCERT_API_RESP
         });
@@ -354,7 +353,7 @@ describe("getConcertDetails", function () {
         const resp = await Concert.getConcertDetails(testConcertId);
 
         expect(resp).toEqual({
-            jambaseId: "jambase:11070750",
+            id: "jambase:11070750",
             headliner: {
                 name: "Ben Rector",
                 bandImageUrl: "https://www.jambase.com/wp-content/uploads/2023/01/ben-rector-1480x832.png",
@@ -382,7 +381,7 @@ describe("getConcertDetails", function () {
         const invalidConcertId = "not-a-concert";
 
         fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
+            `${JAMBASE_BASE_URL}events/id/${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
             status: 400,
             body: {
                 "success": false,
@@ -405,7 +404,7 @@ describe("getConcertDetails", function () {
 
     test("throw 400 if API request fails", async function () {
         fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/${testConcertIdSource}:undefined?apikey=${JAMBASE_API_KEY}`, {
+            `${JAMBASE_BASE_URL}events/id/undefined?apikey=${JAMBASE_API_KEY}`, {
             status: 400,
             body: {
                 "success": false,
@@ -457,7 +456,7 @@ describe("getRandomConcertDetails", function () {
         });
 
         expect(resp).toEqual({
-            jambaseId: "jambase:11297801",
+            id: "jambase:11297801",
             headliner: {
                 name: "Silent Planet",
                 bandImageUrl: "https://www.jambase.com/wp-content/uploads/2017/04/silent-planet-silent-planet-0ddd54a3-9fb1-4314-a48d-8ace7dafd1a7_279581_TABLET_LANDSCAPE_LARGE_16_9-1480x832.jpg",

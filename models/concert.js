@@ -18,7 +18,7 @@ class Concert {
     * Takes dateFrom, dateTo, lat, lng, geoRadius. dateFrom and dateTo must be
     * dates in the future within the next year.
     * Returns [
-    * { jambaseId,
+    * { id,
         headliner: {
          name,
          bandImageUrl
@@ -94,7 +94,7 @@ class Concert {
       };
 
       const concert = {
-         jambaseId: concertData.identifier,
+         id: concertData.identifier,
          headliner: {
             name: headliner.name,
             bandImageUrl: headliner.image,
@@ -123,7 +123,7 @@ class Concert {
    /** Takes concert id string like "123" and an id identifier which defaults to
     * "jambase".
     * Returns: {
-         jambaseId,
+         id,
          headliner: {
             name,
             band_image,_url
@@ -146,10 +146,10 @@ class Concert {
     * Throws 404 if concert is not found.
     * Throws 400 if API request fails.
     */
-   static async getConcertDetails(id, idSource = DEFAULT_EVENT_SOURCE) {
+   static async getConcertDetails(id) {
       const params = new URLSearchParams({ apikey: JAMBASE_API_KEY });
       const resp = await fetch(
-         `${JAMBASE_BASE_URL}events/id/${idSource}:${id}?${params}`
+         `${JAMBASE_BASE_URL}events/id/${id}?${params}`
       );
       const concertData = await resp.json();
 
@@ -167,7 +167,7 @@ class Concert {
     * within the next year.
     * Returns one concert that matches filters:
     * {
-         jambaseId,
+         id,
          headliner: {
             name,
             band_image,_url

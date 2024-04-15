@@ -22,11 +22,12 @@ class User {
         }
 
         // check unique email
-        const duplicateCheck = await db.query(`
+        const { data, error } = await db.query(`
             SELECT email
             FROM users
             WHERE email = $1`, [email],
         );
+
         if (duplicateCheck.rows.length > 0) {
             throw new BadRequestError(`Email already in use.`);
         }

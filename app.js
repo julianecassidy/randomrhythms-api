@@ -2,7 +2,7 @@ const express = require("express");
 
 const { NotFoundError } = require("./helpers/expressError");
 
-const { authenticateJWT } = require("./middleware/middleware");
+const { authenticateJWT, limiter } = require("./middleware/middleware");
 
 const cors = require('cors');
 const app = express();
@@ -19,6 +19,8 @@ const concertRoutes = require('./routes/concerts');
 
 app.use("/auth", authRoutes);
 app.use("/concerts", concertRoutes);
+
+app.use('/concerts', limiter)
 
 app.use(function (req, res) {                      // handle site-wide 404s
   throw new NotFoundError();

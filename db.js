@@ -7,7 +7,7 @@ const { DB_URI } = require("./config");
 
 const db = new Client(DB_URI);
 
-console.log("DB", DB_URI);
+console.log("Connecting to database:", DB_URI);
 
 db.connect();
 

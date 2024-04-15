@@ -1,8 +1,10 @@
 "use strict";
 
-/** Convenience middleware to handle common auth cases in routes. */
+/** Convenience middleware to handle common auth cases and rate limiting in
+ * routes. */
 
 const jwt = require("jsonwebtoken");
+const { rateLimit } = require('express-rate-limit');
 const { SECRET_KEY } = require("../config");
 const { UnauthorizedError } = require("../helpers/expressError");
 
@@ -39,5 +41,15 @@ function ensureLoggedIn(req, res, next) {
     throw new UnauthorizedError();
 }
 
+/** Middleware to limit requests by IP.
+  */
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 30, // Limit each IP to 30 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
 
-module.exports = { authenticateJWT, ensureLoggedIn };
+
+
+module.exports = { authenticateJWT, ensureLoggedIn, limiter };

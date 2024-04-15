@@ -22,7 +22,7 @@ class User {
         }
 
         // check unique email
-        const { data, error } = await db.query(`
+        const duplicateCheck = await db.query(`
             SELECT email
             FROM users
             WHERE email = $1`, [email],

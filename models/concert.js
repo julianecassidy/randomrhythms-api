@@ -77,20 +77,26 @@ class Concert {
    /** Parses an object of raw concert data from Jambase API and returns needed
     * fields. This is specific to concert data retreived from Jambase. */
    static async formatConcertData(concertData, origLat, origLng) {
+      console.log("concertData", concertData);
       const headliner = concertData.performer[0];
       const openers = concertData.performer.slice(1);
       const venue = concertData.location;
 
       let distance = null;
       if (origLat && origLng) {
-         distance = await Distance.getDistance(
-            origLat,
-            origLng,
-            venue.address.streetAddress,
-            venue.address.addressLocality,
-            venue.address.addressRegion.alternateName,
-            venue.address.postalCode
-         );
+         try {
+            distance = await Distance.getDistance(
+               origLat,
+               origLng,
+               venue.address.streetAddress,
+               venue.address.addressLocality,
+               venue.address.addressRegion.alternateName,
+               venue.address.postalCode
+            );
+         } catch (err) {
+            console.debug(err);
+            distance = undefined;
+         }
       };
 
       const concert = {

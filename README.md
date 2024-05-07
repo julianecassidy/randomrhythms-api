@@ -125,7 +125,7 @@ APIs:
 - [JamBase API](https://apidocs.jambase.com/)
 - [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/overview)
 
-See [requirements.txt](https://github.com/julianecassidy/randomrhythms-api/blob/master/requirements.txt) for a full list of dependencies.
+See [package.json](https://github.com/julianecassidy/randomrhythms-api/blob/master/package.json) for a full list of dependencies.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

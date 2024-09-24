@@ -42,9 +42,9 @@ module.exports = router;
         eventSource
        }, ...]
 
-       Authorization required: requester must be logged in.
+       Authorization required: none
 */
-router.get("/", ensureLoggedIn, async function (req, res) {
+router.get("/", async function (req, res) {
     const validation = jsonschema.validate(
         req.query,
         concertsSchema,
@@ -94,9 +94,9 @@ router.get("/", ensureLoggedIn, async function (req, res) {
         eventSource
        }, ...]
 
-       Authorization required: requester must be logged in.
+       Authorization required: none.
 */
-router.get("/random", ensureLoggedIn, async function (req, res) {
+router.get("/random", async function (req, res) {
     const q = req.query;
 
     if (q.geoRadius !== undefined) q.geoRadius = +q.geoRadius;
@@ -156,9 +156,9 @@ router.get("/random", ensureLoggedIn, async function (req, res) {
         eventSource
        }
 
-       Authorization required: requester must be logged in.
+       Authorization required: none
 */
-router.get("/:id", ensureLoggedIn, async function (req, res) {
+router.get("/:id", async function (req, res) {
     const validation = jsonschema.validate(
         req.params,
         concertSchema,

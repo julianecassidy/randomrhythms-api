@@ -12,7 +12,7 @@ app.use(express.json());                           // process JSON data
 app.use(express.urlencoded());
 app.use(cors());                     // process trad form data
 
-app.use(authenticateJWT);
+// app.use(authenticateJWT);
 
 const authRoutes = require('./routes/auth');
 const concertRoutes = require('./routes/concerts');

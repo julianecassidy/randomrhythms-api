@@ -77,7 +77,7 @@ class Concert {
    /** Parses an object of raw concert data from Jambase API and returns needed
     * fields. This is specific to concert data retreived from Jambase. */
    static async formatConcertData(concertData, origLat, origLng) {
-      console.log("concertData", concertData);
+      // console.log("concertData", concertData);
       const headliner = concertData.performer[0];
       const openers = concertData.performer.slice(1);
       const venue = concertData.location;

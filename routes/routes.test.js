@@ -10,7 +10,6 @@ const db = require("../db");
 const fetchMock = require("fetch-mock");
 const _ = require("lodash");
 
-const { User } = require("../models/user");
 const { Concert } = require("../models/concert");
 const { JAMBASE_API_KEY, GOOGLE_API_KEY } = require("../config");
 const { JAMBASE_BASE_URL } = require("../models/concert");
@@ -319,8 +318,8 @@ describe("GET /concerts", function () {
 
         const response = await request(app)
             .get("/concerts/")
-            .query(validConcertQuery)
-            .set("authorization", `Bearer ${testToken}`);
+            .query(validConcertQuery);
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.body).toEqual({
             concerts: [{
@@ -371,14 +370,15 @@ describe("GET /concerts", function () {
         });
     });
 
-    test("throws 401 for invalid token", async function () {
-        const response = await request(app)
-            .get("/concerts/")
-            .query(validConcertQuery)
-            .set("authorization", `Bearer wrong`);
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token", async function () {
+    //     const response = await request(app)
+    //         .get("/concerts/")
+    //         .query(validConcertQuery)
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 
     test("throws 400 for invalid dates", async function () {
         DateValidation.validateDates.mockReturnValue(false);
@@ -409,8 +409,8 @@ describe("GET /concerts", function () {
 
         const response = await request(app)
             .get("/concerts/")
-            .query({ ...validConcertQuery, dateFrom: "2023-01-01", dateTo: "2023-01-02" })
-            .set("authorization", `Bearer ${testToken}`);
+            .query({ ...validConcertQuery, dateFrom: "2023-01-01", dateTo: "2023-01-02" });
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.statusCode).toEqual(400);
     });
@@ -437,34 +437,36 @@ describe("GET /concerts", function () {
         const response = await request(app)
             .get("/concerts/")
             .query({ ...validConcertQuery, zipCode: "00000" })
-            .set("authorization", `Bearer ${testToken}`);
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.statusCode).toEqual(400);
     });
 
-    test("throws 401 for invalid token and invalid dates", async function () {
-        DateValidation.validateDates.mockReturnValue(false);
-        Distance.getDistance.mockReturnValue(9.8);
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token and invalid dates", async function () {
+    //     DateValidation.validateDates.mockReturnValue(false);
+    //     Distance.getDistance.mockReturnValue(9.8);
 
-        const response = await request(app)
-            .get("/concerts/")
-            .query({ ...validConcertQuery, dateFrom: "2024-02-01", dateTo: "2024-01-02" })
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get("/concerts/")
+    //         .query({ ...validConcertQuery, dateFrom: "2024-02-01", dateTo: "2024-01-02" })
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 
-    test("throws 401 for invalid token and invalid zip code", async function () {
-        DateValidation.validateDates.mockReturnValue(true);
-        Distance.getDistance.mockReturnValue(9.8);
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token and invalid zip code", async function () {
+    //     DateValidation.validateDates.mockReturnValue(true);
+    //     Distance.getDistance.mockReturnValue(9.8);
 
-        const response = await request(app)
-            .get("/concerts/")
-            .query({ ...validConcertQuery, zipCode: "00000" })
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get("/concerts/")
+    //         .query({ ...validConcertQuery, zipCode: "00000" })
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 });
 
 
@@ -478,8 +480,8 @@ describe("GET /concert/:id", function () {
             body: GET_CONCERT_API_RESP
         });
         const response = await request(app)
-            .get(`/concerts/${testConcertId}`)
-            .set("authorization", `Bearer ${testToken}`);
+            .get(`/concerts/${testConcertId}`);
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.body).toEqual({
             concert: {
@@ -508,19 +510,20 @@ describe("GET /concert/:id", function () {
         });
     });
 
-    test("throws 401 for invalid token", async function () {
-        fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/jambase:${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
-            status: 200,
-            body: GET_CONCERT_API_RESP
-        });
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token", async function () {
+    //     fetchMock.get(
+    //         `${JAMBASE_BASE_URL}events/id/jambase:${testConcertId}?apikey=${JAMBASE_API_KEY}`, {
+    //         status: 200,
+    //         body: GET_CONCERT_API_RESP
+    //     });
 
-        const response = await request(app)
-            .get(`/concerts/${testConcertId}`)
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get(`/concerts/${testConcertId}`)
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 
     test("throws 404 for not found concert id", async function () {
         const invalidConcertId = "00000";
@@ -540,35 +543,36 @@ describe("GET /concert/:id", function () {
         });
 
         const response = await request(app)
-            .get(`/concerts/${invalidConcertId}`)
-            .set("authorization", `Bearer ${testToken}`);
+            .get(`/concerts/${invalidConcertId}`);
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.statusCode).toEqual(404);
     });
 
-    test("throws 401 for invalid token and not found concert id", async function () {
-        const invalidConcertId = "00000";
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token and not found concert id", async function () {
+    //     const invalidConcertId = "00000";
 
-        fetchMock.get(
-            `${JAMBASE_BASE_URL}events/id/jambase:${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
-            status: 400,
-            body: {
-                "success": false,
-                "errors": [
-                    {
-                        "code": "identifier_invalid",
-                        "message": "No event found for `jambase` event id `not-a-concert`"
-                    }
-                ]
-            }
-        });
+    //     fetchMock.get(
+    //         `${JAMBASE_BASE_URL}events/id/jambase:${invalidConcertId}?apikey=${JAMBASE_API_KEY}`, {
+    //         status: 400,
+    //         body: {
+    //             "success": false,
+    //             "errors": [
+    //                 {
+    //                     "code": "identifier_invalid",
+    //                     "message": "No event found for `jambase` event id `not-a-concert`"
+    //                 }
+    //             ]
+    //         }
+    //     });
 
-        const response = await request(app)
-            .get(`/concerts/${invalidConcertId}`)
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get(`/concerts/${invalidConcertId}`)
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 });
 
 
@@ -626,8 +630,8 @@ describe("GET /concerts/random", function () {
 
         const response = await request(app)
             .get("/concerts/random")
-            .query(validRandomQuery)
-            .set("authorization", `Bearer ${testToken}`);
+            .query(validRandomQuery);
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.body).toEqual({
             randomConcert: {
@@ -656,41 +660,42 @@ describe("GET /concerts/random", function () {
         });
     });
 
-    test("throws 401 for invalid token", async function () {
-        DateValidation.validateDates.mockReturnValue(true);
-        Distance.getDistance.mockReturnValue(9.8);
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token", async function () {
+    //     DateValidation.validateDates.mockReturnValue(true);
+    //     Distance.getDistance.mockReturnValue(9.8);
 
-        const zipCodeParams = new URLSearchParams({
-            components: `postal_code:80113|country:US`,
-            key: GOOGLE_API_KEY,
-        });
+    //     const zipCodeParams = new URLSearchParams({
+    //         components: `postal_code:80113|country:US`,
+    //         key: GOOGLE_API_KEY,
+    //     });
 
-        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
-            status: 200,
-            body: {
-                "results": [{
-                    "geometry": {
-                        "location": {
-                            "lat": 39.644843,
-                            "lng": -104.968091
-                        },
-                    },
-                }],
-                "status": "OK"
-            }
-        });
+    //     fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
+    //         status: 200,
+    //         body: {
+    //             "results": [{
+    //                 "geometry": {
+    //                     "location": {
+    //                         "lat": 39.644843,
+    //                         "lng": -104.968091
+    //                     },
+    //                 },
+    //             }],
+    //             "status": "OK"
+    //         }
+    //     });
 
-        fetchMock.get(`${JAMBASE_BASE_URL}events?${concertParams}`, {
-            status: 200,
-            body: GET_CONCERTS_API_RESP,
-        });
+    //     fetchMock.get(`${JAMBASE_BASE_URL}events?${concertParams}`, {
+    //         status: 200,
+    //         body: GET_CONCERTS_API_RESP,
+    //     });
 
-        const response = await request(app)
-            .get("/concerts/random")
-            .query(validRandomQuery)
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get("/concerts/random")
+    //         .query(validRandomQuery)
+    //         .set("authorization", `Bearer wrong`);
 
-    });
+    // });
 
     test("throws 400 for invalid dates", async function () {
         DateValidation.validateDates.mockReturnValue(false);
@@ -723,8 +728,8 @@ describe("GET /concerts/random", function () {
 
         const response = await request(app)
             .get("/concerts/random")
-            .query({ ...validRandomQuery, dateFrom: "2024-02-01", dateTo: "2024-01-01" })
-            .set("authorization", `Bearer ${testToken}`);
+            .query({ ...validRandomQuery, dateFrom: "2024-02-01", dateTo: "2024-01-01" });
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.statusCode).toEqual(400);
     });
@@ -760,8 +765,8 @@ describe("GET /concerts/random", function () {
 
         const response = await request(app)
             .get("/concerts/random")
-            .query({ ...validRandomQuery, price: "not a price" })
-            .set("authorization", `Bearer ${testToken}`);
+            .query({ ...validRandomQuery, price: "not a price" });
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.statusCode).toEqual(400);
     });
@@ -787,75 +792,77 @@ describe("GET /concerts/random", function () {
 
         const response = await request(app)
             .get("/concerts/")
-            .query({ ...validRandomQuery, zipCode: "00000" })
-            .set("authorization", `Bearer ${testToken}`);
+            .query({ ...validRandomQuery, zipCode: "00000" });
+            // .set("authorization", `Bearer ${testToken}`);  // removing authorization for concert routes
 
         expect(response.statusCode).toEqual(400);
     });
 
-    test("throws 401 for invalid token and invalid dates", async function () {
-        DateValidation.validateDates.mockReturnValue(false);
-        Distance.getDistance.mockReturnValue(9.8);
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token and invalid dates", async function () {
+    //     DateValidation.validateDates.mockReturnValue(false);
+    //     Distance.getDistance.mockReturnValue(9.8);
 
-        const zipCodeParams = new URLSearchParams({
-            components: `postal_code:80113|country:US`,
-            key: GOOGLE_API_KEY,
-        });
+    //     const zipCodeParams = new URLSearchParams({
+    //         components: `postal_code:80113|country:US`,
+    //         key: GOOGLE_API_KEY,
+    //     });
 
-        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
-            status: 200,
-            body: {
-                "results": [{
-                    "geometry": {
-                        "location": {
-                            "lat": 39.644843,
-                            "lng": -104.968091
-                        },
-                    },
-                }],
-                "status": "OK"
-            }
-        });
+    //     fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${zipCodeParams}`, {
+    //         status: 200,
+    //         body: {
+    //             "results": [{
+    //                 "geometry": {
+    //                     "location": {
+    //                         "lat": 39.644843,
+    //                         "lng": -104.968091
+    //                     },
+    //                 },
+    //             }],
+    //             "status": "OK"
+    //         }
+    //     });
 
-        fetchMock.get(`${JAMBASE_BASE_URL}events?${concertParams}`, {
-            status: 200,
-            body: GET_CONCERTS_API_RESP,
-        });
+    //     fetchMock.get(`${JAMBASE_BASE_URL}events?${concertParams}`, {
+    //         status: 200,
+    //         body: GET_CONCERTS_API_RESP,
+    //     });
 
-        const response = await request(app)
-            .get("/concerts/")
-            .query({ ...validRandomQuery, dateFrom: "2024-02-01", dateTo: "2024-01-01" })
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get("/concerts/")
+    //         .query({ ...validRandomQuery, dateFrom: "2024-02-01", dateTo: "2024-01-01" })
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 
-    test("throws 401 for invalid token and invalid zip code", async function () {
-        DateValidation.validateDates.mockReturnValue(true);
-        Distance.getDistance.mockReturnValue(9.8);
+    // removing authorization for concert routes
+    // test("throws 401 for invalid token and invalid zip code", async function () {
+    //     DateValidation.validateDates.mockReturnValue(true);
+    //     Distance.getDistance.mockReturnValue(9.8);
 
-        const invalidZip = "00000";
+    //     const invalidZip = "00000";
 
-        const testParams = new URLSearchParams({
-            components: `postal_code:${invalidZip}|country:US`,
-            key: GOOGLE_API_KEY,
-        });
+    //     const testParams = new URLSearchParams({
+    //         components: `postal_code:${invalidZip}|country:US`,
+    //         key: GOOGLE_API_KEY,
+    //     });
 
-        fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
-            status: 200,
-            body: {
-                "results": [],
-                "status": "ZERO_RESULTS"
-            }
-        });
+    //     fetchMock.get(`${GOOGLE_BASE_URL_GEOCODE}?${testParams}`, {
+    //         status: 200,
+    //         body: {
+    //             "results": [],
+    //             "status": "ZERO_RESULTS"
+    //         }
+    //     });
 
-        const response = await request(app)
-            .get("/concerts/")
-            .query({ ...validRandomQuery, zipCode: "00000" })
-            .set("authorization", `Bearer wrong`);
+    //     const response = await request(app)
+    //         .get("/concerts/")
+    //         .query({ ...validRandomQuery, zipCode: "00000" })
+    //         .set("authorization", `Bearer wrong`);
 
-        expect(response.statusCode).toEqual(401);
-    });
+    //     expect(response.statusCode).toEqual(401);
+    // });
 
     // This test is last because it mocks a method the others test use unmocked.
     test("should return a concert with dates and zip code", async function () {
@@ -895,8 +902,8 @@ describe("GET /concerts/random", function () {
                 dateFrom: "2024-01-01",
                 dateTo: "2024-01-02",
                 zipCode: 80113,
-            })
-            .set("authorization", `Bearer ${testToken}`);
+            });
+            // .set("authorization", `Bearer ${testToken}`); // removing authorization for concert routes
 
         expect(spySampleLodash).toHaveBeenCalledWith(GET_CONCERTS_API_RESP);
     });

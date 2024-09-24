@@ -99,7 +99,7 @@ This repo contains the back end API for the web app. The back end currently has 
 
 Through the API, users can:
 
-- Create an account with a sign up code
+- Create an account
 - Get a list of all concerts based on date and city
 - Get a single concert by id
 - Get a random concert based on date, city, and price
